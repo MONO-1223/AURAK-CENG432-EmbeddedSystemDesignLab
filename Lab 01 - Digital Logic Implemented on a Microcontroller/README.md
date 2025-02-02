@@ -15,20 +15,125 @@ In this lab, we explore the fundamentals of digital input and output (I/O) using
 
 The lab consists of three main parts. First, we implement a simple LED blinking program to understand GPIO port initialization and timing delays. Next, we modify the program to control the blue LED based on the state of an onboard switch. Finally, we expand our implementation to include multiple LEDs and switches, applying logical operations to create specific LED behaviors based on different switch states. By completing this lab, we gain practical experience in embedded systems programming, logic operations, and control flow using the TM4C123 microcontroller.
 
-## Part 1: 
+## Part 1: GREEN LED Blinking 
 
-// anchor
+<img src="Photos/part1.gif" width="250" height="300" align="left">
+<img src="Photos/transparentpic.png" width="8" height="300" align="left">
+
+In the first part of this lab, we will focus on making the green LED blink, which will help us practice register-level programming on the `Tiva board`. This task will involve configuring and controlling the GPIO registers to manipulate the LED's behavior. A solid understanding of the board’s hardware design is crucial, and we will refer to this information as needed. We will also explore how to troubleshoot common issues related to GPIO configuration during this process, ensuring we gain hands-on experience in problem-solving. This exercise will also help us develop a deeper understanding of how embedded systems interact with hardware at a low level.
+
+Additionally, we’ll revisit key concepts like system clocks and delays, which are necessary to create a precise and predictable blinking pattern. By implementing timing mechanisms through delays, we’ll ensure the LED blinks at regular intervals. By the end of this section, we will have a clear understanding of how to manipulate hardware registers and timing functions to control the LED’s behavior, laying the foundation for more complex embedded system tasks.
+
+<details>
+  <summary>Register-Level Programming</summary>
+<br>
+
+This lab will be executed exclusively on `Port F` of the Tiva board. Therefore, the first step is to enable the clock for `Port F`, which is essential for accessing and configuring its registers. This can be accomplished using the following code:
+
+```C
+SYSCTL_RCGC2_R= 0x00000020;  // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock
+```
+Next, we need to disable the analog functionality of the pins, as we will be using them in digital mode. This is achieved by clearing the eight least significant bits of the `AMSEL` register, as we only have access to these specific pins. The following code accomplishes this:
+
+```C
+GPIO_PORTF_AMSEL_R = 0x00;  // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function
+```
+
+Next, we need to clear the `PCTL` register to select the standard digital function for the pins. This ensures that the pins operate in their default digital mode. The following code accomplishes this:
+
+```C
+GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000 
+```
+
+Now, we need to set the direction of the pin, determining whether it operates in input or output mode. This is done using the `DIR` register. Our goal is to control the green LED, which is connected to `Port F`, Pin 3. To configure this pin as an output, we must set the fourth bit of the `DIR` register to 1 (where 1 represents output mode). This can be achieved by modifying only the least significant 8 bits using the following code:
+
+```C
+GPIO_PORTF_DIR_R = 0x08;  // ---- ---- ---- ---- ---- ---- 0000 1000  We just set pin 3 (Green LED) to be in the OUTPUT mode
+```
+
+Since we are not using the Alternate Function Select `(AFSEL)` register, we need to clear it entirely to ensure the pins operate in their default digital mode. This can be done using the following code:
+
+```C
+GPIO_PORTF_AFSEL_R = 0x00;  // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function 
+```
+
+The final step is to enable the pin by setting it as a digital I/O. This is done by writing 1 to the corresponding bit in the `DEN` (Digital Enable) register, allowing the pin to function as a digital output. The following code accomplishes this:
+
+```C
+GPIO_PORTF_DEN_R = 0x08;  // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3 
+```
+
+At the end, we can consolidate all the code for registering and set it up to blink the green LED through a function. This way, we can simply call the function whenever needed.
+
+```C
+void PortF_Init(void){ 
+  SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock
+  GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function 
+  GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000  
+  GPIO_PORTF_DIR_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  We just set pin 3 (Green LED) to be in the OUTPUT mode   
+  GPIO_PORTF_AFSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function      
+  GPIO_PORTF_DEN_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3    
+}
+```
+
+</details>
 
 <details>
   <summary>C Code on EK-TM4C123GXL</summary>
 <br>
 
 ```C
+// The libraries that we need
+#include <stdint.h>
+#include "tm4c123gh6pm.h"
 
+#define GPIO_PORTF_DATA_R       (*((volatile unsigned long *)0x400253FC))
+#define GPIO_PORTF_DIR_R        (*((volatile unsigned long *)0x40025400))
+#define GPIO_PORTF_AFSEL_R      (*((volatile unsigned long *)0x40025420))
+#define GPIO_PORTF_DEN_R        (*((volatile unsigned long *)0x4002551C))
+#define GPIO_PORTF_AMSEL_R      (*((volatile unsigned long *)0x40025528))
+#define GPIO_PORTF_PCTL_R       (*((volatile unsigned long *)0x4002552C))
+#define SYSCTL_RCGCGPIO_R       (*((volatile unsigned long *)0x400FE608))
+#define SYSCTL_PRGPIO_R         (*((volatile unsigned long *)0x400FEA08))
+#define SYSCTL_RCGC2_GPIOF      0x00000020  // port F Clock Gating Control
+#define SYSCTL_RCGC2_R          (*((volatile unsigned long *)0x400FE108))
+	
+//Function Prototypes
+
+void PortF_Init(void);		
+void Delay(void);
+
+int main(void){    
+  PortF_Init();    			// Call initialization of Port F
+ 
+  while(1){
+		
+      GPIO_PORTF_DATA_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000 For That mean we writing the value 1 on Pin PF3 (Green LED on)                                 
+      Delay();				 // wait 0.1 sec (Read the Clock part on the introduction)
+      GPIO_PORTF_DATA_R = 0x00;    	 // ---- ---- ---- ---- ---- ---- 0000 0000 For That mean we writing the value 0 on Pin PF3 (Green LED off)   
+      Delay();                     	// wait 0.1 sec (Read the Clock part on the introduction)
+  }
+}
+
+// The function to initialize port F pins for input and output
+void PortF_Init(void){ 
+  SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock
+  GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function 
+  GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000  
+  GPIO_PORTF_DIR_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  We just set pin 3 (Green LED) to be in the OUTPUT mode   
+  GPIO_PORTF_AFSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function      
+  GPIO_PORTF_DEN_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3    
+}
+// The delay Fucntion
+void Delay(void){
+
+unsigned long  time;  // Variable called time
+  time = 1600000;  // 0.1 sec  (Read the Clock part on the introduction)
+  while(time!=0){  // When the time go to Zero it will exit the function
+    time--;
+  }
+}
 ```
-
-// anchor
-
 </details>
 
 
@@ -37,15 +142,13 @@ The lab consists of three main parts. First, we implement a simple LED blinking 
 	
 <br>
 
+<p align="center">
+  <img src="Photos/Part1(Off).png" style="width: 49%; height: 300px;" title="Green LED is Off" /> <img src="Photos/Part1(On).png" style="width: 49%; height: 300px;" title="Green LED is On" />
+</p>
 
-
-// anchor
+In this part of the lab, we run our Texas Launchpad simulation to verify that our code is working correctly before deploying it on the Tiva microcontroller. As shown in the left picture, the green LED is initially off. After a delay of `0.1 seconds`, as seen in the right picture, the LED turns on. This demonstrates the intended behavior and serves as the purpose of this section ensuring that our code produces the desired output before testing it on the actual hardware.
 	
 </details>
-
-
-
-
 
 ## Part 2:
 
