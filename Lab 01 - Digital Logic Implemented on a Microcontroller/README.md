@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Photos/header.gif"/>
+  <img src="Photos/exppp1-removebg-preview.png"/>
 </p>
 
 In this lab, we explore the fundamentals of digital input and output (I/O) using Keil uVision5 and the [Tiva C LaunchPad (TM4C123) microcontroller](Photos/TM4C123GXL.png). The primary objective is to familiarize ourselves with software development steps in uVision, including code compilation, simulation, and debugging. Through a series of tasks, we will learn how to initialize and configure GPIO ports, control LEDs, and read input from switches using positive logic.
