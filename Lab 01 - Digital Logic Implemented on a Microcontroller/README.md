@@ -221,7 +221,7 @@ void PortF_Output(uint32_t data){
 
 </details>
 
-## Part 3: Multi-Switch LED Control
+## Part 3: Multi-Switch RGB LED Control
 
 <img src="Photos/part3.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
