@@ -124,7 +124,7 @@ In the second part of the lab, we will program the blue LED on our TIVA board to
 
 For a better understanding of how the button and blue LED are internally connected to the microcontroller, refer to this [figure](Photos/ledschema.png). It explains the internal wiring, pull-up/down resistor configurations, and how the button press affects the logic level read by the microcontroller. This knowledge will help in correctly setting up the GPIO pins and writing efficient code for the task.
 
-To ensure reliable operation, we will also consider debouncing techniques to prevent unintended toggling caused by mechanical noise in the button, improving system stability, accuracy, and responsiveness.
+To ensure reliable operation, we also consider the built-in debouncing mechanism which prevents unintended toggling caused by mechanical noise in the button, improving system stability, accuracy, and responsiveness.
 
 <details>
 <summary>C Code on EK-TM4C123GXL</summary>
