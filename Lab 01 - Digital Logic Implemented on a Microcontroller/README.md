@@ -2,30 +2,18 @@
   <img src="Photos/Banner.png"/>
 </p>
 
-This report is Markdown-typed and submitted by students Nour Mostafa with ID 2021004938 and Mohamed Abouissa with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
+This report is Markdown-typed and submitted in Spring 2025 by students Nour Mostafa with ID 2021004938 and Mohamed Abouissa with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
 
 
 ---
 
 <p align="center">
-  <img src="Photos/testing2-removebg-preview.png"/>
-</p>
-
-<!-- Badge icons found at https://feathericons.com/-->
-<p align="center">
-
-<a href="https://custom-icon-badges.demolab.com/badge/Academic%20Year-Fall%202024-ffffff?style=for-the-badge&logo=calendar&logoSource=feather&logoColor=gray">
-  <img src="https://custom-icon-badges.demolab.com/badge/Academic%20Year-Spring%202025-ffffff?style=for-the-badge&logo=calendar&logoSource=feather&logoColor=white&labelColor=a50313" title="Academic Year" style="vertical-align:top; margin:4px"></a> <a href="https://custom-icon-badges.demolab.com/badge/Project%20Status-Completed-ffffff?style=for-the-badge&logo=activity&logoSource=feather&logoColor=gray"><img src="https://custom-icon-badges.demolab.com/badge/Project%20Status-Submitted-ffffff?style=for-the-badge&logo=activity&logoSource=feather&logoColor=white&labelColor=a50313" title="Project Status" style="vertical-align:top; margin:4px"></a>
-
+  <img src="Photos/header.gif"/>
 </p>
 
 In this lab, we explore the fundamentals of digital input and output (I/O) using the Keil uVision simulator and the Tiva C LaunchPad (TM4C123) microcontroller. The primary objective is to familiarize ourselves with software development steps in uVision, including code compilation, simulation, and debugging. Through a series of tasks, we will learn how to initialize and configure GPIO ports, control LEDs, and read input from switches using positive logic.
 
-The lab consists of three main parts. First, we implement a simple LED blinking program to understand GPIO port initialization and timing delays. Next, we modify the program to control the Green LED based on the state of an onboard switch, reinforcing our understanding of digital input handling. Finally, we expand our implementation to include multiple LEDs and switches, applying logical operations to create specific LED behaviors based on different switch states. By completing this lab, we gain practical experience in embedded systems programming, logic operations, and control flow using the TM4C123 microcontroller.
-<br>
-<p align="center">
-  <img src="Photos/TM4C123GXL.png" style="width: 1000px" title="Testing all counting cases." />
-</p>
+The lab consists of three main parts. First, we implement a simple LED blinking program to understand GPIO port initialization and timing delays. Next, we modify the program to control the blue LED based on the state of an onboard switch. Finally, we expand our implementation to include multiple LEDs and switches, applying logical operations to create specific LED behaviors based on different switch states. By completing this lab, we gain practical experience in embedded systems programming, logic operations, and control flow using the TM4C123 microcontroller.
 
 ## Part 1: 
 
