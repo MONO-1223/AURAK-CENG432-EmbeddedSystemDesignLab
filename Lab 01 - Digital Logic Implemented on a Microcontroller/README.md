@@ -1,14 +1,10 @@
 <p align="center">
-  <img src="Photos/Banner.png"/>
+  <img src="Photos/redlogoo.png"/>
 </p>
 
 This report is Markdown-typed and submitted in Spring 2025 by students [Nour Mostafa](https://github.com/Nour-MK) with ID 2021004938 and [Mohamed Abouissa](https://github.com/Mohamed-Abouissa) with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
 
 ---
-
-<p align="center">
-  <img src="Photos/logoo.png"/>
-</p>
 
 In this lab, we explore the fundamentals of digital input and output (I/O) using Keil uVision5 and the [Tiva C LaunchPad (TM4C123) microcontroller](Photos/TM4C123GXL.png). The primary objective is to familiarize ourselves with software development steps in uVision, including code compilation, simulation, and debugging. Through a series of tasks, we will learn how to initialize and configure GPIO ports, control LEDs, and read input from switches using positive logic.
 
@@ -293,11 +289,9 @@ gantt
         Nour Mostafa : crit, 2025-01-23 00:00, 02h
         Mohamed Abouissa : crit, 2025-01-23 00:00, 02h
     section Keil         
-        Nour Mostafa : crit, 2025-01-24 00:00, 1d
         Mohamed Abouissa : crit,2025-01-24 00:00, 1d
     section Results       
         Nour Mostafa : crit, 2025-01-24 00:00, 1d
-        Mohamed Abouissa : crit, 2025-01-24 00:00, 1d
     section Report
         Nour Mostafa : crit, 2025-01-30 00:00, 2d
         Mohamed Abouissa : crit, 2025-01-30 00:00, 2d
