@@ -188,9 +188,11 @@ By understanding how to configure and utilize microcontrollers like the TM4C123,
 
 ## Resources
 
-[1] J. W. Valvano, Introduction to the Arm® Cortex(TM)-M3, 4. ed. in Embedded systems.  
-[2] EslamG11, “Blinking LED in Tiva C Board (TM4C123G),” Instructables. Accessed: Feb. 01, 2025. [Online]. Available: <br> https://www.instructables.com/Blinking-LED-in-Tiva-C-Board-TM4C123G/  
-[3] Vooi Yap - Embedded Systems Education, #83 TM4C123GH6PM Cortex M4F Microcontroller - Installing Keil uVision and TivaWare for C Series, (Apr. 04, 2024). Accessed: Feb. 01, 2025. [Online Video]. Available: <br> https://www.youtube.com/watch?v=hp4JrezDCgg
+[1] EslamG11. (n.d.). Blinking LED in Tiva C Board (TM4C123G). Instructables. Retrieved February 1, 2025, from <br> https://www.instructables.com/Blinking-LED-in-Tiva-C-Board-TM4C123G/  
+[2] Texas Instruments Incorporated. (2014). Tiva™ TM4C123GH6PM Microcontroller data sheet. Texas Instruments Incorporated. <br> https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf  
+[3] Texas Instruments Incorporated. (2013). Tiva™ C Series TM4C123G LaunchPad (User's Guide). Texas Instruments Incorporated. <br>  https://www.ti.com/lit/ug/spmu296/spmu296.pdf  
+[4] Valvano, J. W. (2014). Embedded systems: Introduction to ARM® Cortex-M microcontrollers (5th ed., Vol. 1). Self-published. <br> https://users.ece.utexas.edu/~valvano/Volume1/E-Book/  
+[5] Vooi Yap - Embedded Systems Education (Director). (2024, April 4). #83 TM4C123GH6PM Cortex M4F Microcontroller—Installing Keil uVision and TivaWare for C Series [Video recording]. <br> https://www.youtube.com/watch?v=hp4JrezDCgg  
 
 
 <br>
