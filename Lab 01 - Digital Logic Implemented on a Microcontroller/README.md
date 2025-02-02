@@ -44,55 +44,62 @@ Additionally, we’ll revisit key concepts like system clocks and delays, which 
 #define SYSCTL_RCGC2_R          (*((volatile unsigned long *)0x400FE108))
 	
 //Function Prototypes
+
 void PortF_Init(void);		
 void Delay(void);
 
 int main(void){    
-  PortF_Init();    			     // Call initialization of Port F
+  PortF_Init();    			// Call initialization of Port F
  
   while(1){
-                                             // My green LED is on Port F pin #3 that mean we need to edit the fourth bit only to work on the green LED
-      GPIO_PORTF_DATA_R = 0x08;              // ---- ---- ---- ---- ---- ---- 0000 1000 For That mean we writing the value 1 (Which mean we drive voltege to it) on Pin PF3 (Green LED on)  
+                                         // My green LED is on Port F pin #3 that mean we need to edit the fourth bit only to work on the green LED
+      GPIO_PORTF_DATA_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000 For That mean we writing the value 1 (Which mean we drive voltege to it) on Pin PF3 (Green LED on)  
+                                         // (TM4C123 Data Sheet, 662 - 663)
 																				 
 		
-      Delay();				     // Calling the delay function to wait for 0.1 sec (Read the Clock part on the introduction)
+      Delay();				 // Calling the delay function to wait for 0.1 sec (Read the Clock part on the introduction)
 		
-      GPIO_PORTF_DATA_R = 0x00;    	     // ---- ---- ---- ---- ---- ---- 0000 0000 For That mean we writing the value 0 (Which mean it conected to the ground) on Pin PF3 (Green LED off)  
+      GPIO_PORTF_DATA_R = 0x00;    	 // ---- ---- ---- ---- ---- ---- 0000 0000 For That mean we writing the value 0 (Which mean it conected to the ground) on Pin PF3 (Green LED off)  
 		
-      Delay();                         	     // wait 0.1 sec (Read the Clock part on the introduction)
+      Delay();                         	 // wait 0.1 sec (Read the Clock part on the introduction)
   }
 }
 
-// The function to initialize port F pins for input and output
+                                         // The function to initialize port F pins for input and output
 void PortF_Init(void){ 
 	
-  SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
-                                    // To Enable any port just sit the corresponding bit to the order in the alphabet
+  SYSCTL_RCGC2_R= 0x00000020;            // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
+                                         // To Enable any port just sit the corresponding bit to the order in the alphabet
+                                         // (TM4C123 Data Sheet, 340 - 341)
 	
-  GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
+  GPIO_PORTF_AMSEL_R = 0x00;             // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
+                                         // (TM4C123 Data Sheet, 687)
 	
-  GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000 We use this register when we have alternate function or dealing with signals but here we clear it all because 
-                                    // we going do you our pin in the digital mode
+  GPIO_PORTF_PCTL_R = 0x00000000;        // 0000 0000 0000 0000 0000 0000 0000 0000 We use this register when we have alternate function or dealing with signals but here we clear it all because 
+                                         // we going do you our pin in the digital mode
+                                         // (TM4C123 Data Sheet, 688 -689)
 	
-  GPIO_PORTF_DIR_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  We just sit pin 3 (Green LED) to be in the OUTPUT mode (DIR regester is to choose our pin mode)
-                                    // To make my pin in input mode we clear the bit but if we wanted to be in the output mode we sit the bit
-                                    // Above we sit the fourth bit (Which mean PF3 because we strat from PF0 to PF7)
+  GPIO_PORTF_DIR_R = 0x08;               // ---- ---- ---- ---- ---- ---- 0000 1000  We just sit pin 3 (Green LED) to be in the OUTPUT mode (DIR regester is to choose our pin mode)
+                                         // To make my pin in input mode we clear the bit but if we wanted to be in the output mode we sit the bit
+                                         // Above we sit the fourth bit (Which mean PF3 because we strat from PF0 to PF7)
+                                         // (TM4C123 Data Sheet, 663)
 	
-  GPIO_PORTF_AFSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function (The associated pin functions as a peripheral signal and is
-                                    // controlled by the alternate hardware function if it is sit to 1) so we dont want this so we just clear it
+  GPIO_PORTF_AFSEL_R = 0x00;             // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function (The associated pin functions as a peripheral signal and is
+                                         // controlled by the alternate hardware function if it is sit to 1) so we dont want this so we just clear it
+                                         // (TM4C123 Data Sheet, 671 - 672)
 	
-  GPIO_PORTF_DEN_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3 (The DEN register is use to enable the selected pins) here we just want PF3 to 
-                                    // enabled so we sit the fourth bit (PF3)
+  GPIO_PORTF_DEN_R = 0x08;               // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3 (The DEN register is use to enable the selected pins) here we just want PF3 to 
+                                         // enabled so we sit the fourth bit (PF3)
+                                         // (TM4C123 Data Sheet, 682 - 683)
 }
-
 // The delay Fucntion
 void Delay(void){
 
-unsigned long  time;  // Variable called time
+unsigned long  time;                     // Variable called time
 	
-  time = 1600000;  // 0.1 sec  (Read the Clock part on the introduction)
+  time = 1600000;                        // 0.1 sec  (Read the Clock part on the introduction)
 	
-  while(time!=0){  // When the time go to Zero it will exit the function
+  while(time!=0){                        // When the time go to Zero it will exit the function
     time--;
   }
 }
@@ -112,27 +119,106 @@ In this part of the lab, we run our Texas Launchpad simulation to verify that ou
 	
 </details>
 
-## Part 2:
+## Part 2: Green LED with Switch
 
-// anchor
+<img src="Photos/part2-2.gif" width="250" height="300" align="left">
+<img src="Photos/transparentpic.png" width="8" height="300" align="left">
+
+In the second part of the lab, we will program the green LED on our TIVA board to turn off when the built-in button is pressed. This will involve configuring the button as an input and the green LED as an output. When the button is pressed, the microcontroller will detect the change in state and respond by turning off the LED immediately and consistently.
+
+For a better understanding of how the button and green LED are internally connected to the microcontroller, refer to the introduction section. It explains the internal wiring, pull-up/down resistor configurations, and how the button press affects the logic level read by the microcontroller. This knowledge will help in correctly setting up the GPIO pins and writing efficient code for the task.
+
+To ensure reliable operation, we will also consider debouncing techniques to prevent unintended toggling caused by mechanical noise in the button, improving system stability, accuracy, and responsiveness.
 
 <details>
 <summary>C Code on EK-TM4C123GXL</summary>
 <br>
 
 ``` C
+// The libraries that we need
+#include <stdint.h>
+#include "tm4c123gh6pm.h"
+
+#define PF0       (*((volatile uint32_t *)0x40025004))
+#define PF4       (*((volatile uint32_t *)0x40025040))
+#define SWITCHES  (*((volatile uint32_t *)0x40025044))
+#define SYSCTL_RCGC2_GPIOF      0x00000020  // port F Clock Gating Control
+#define Blue     0x04                       // PF2  (0000 0100) (Blue LED)
+
+//Function Prototypes
+
+void PortF_Init(void);
+uint32_t PortF_Input(void);
+void PortF_Output(uint32_t data);
 
 
+int main(void){
+	
+  uint32_t status;                        // Variable called status
+	
+  PortF_Init();                           // initialize Port F (LEDs and the Buttons)
+	
+  while(1){
+		
+    status = PortF_Input();               // status take the value of the function PortF_Input (which is reading the buttons)
+
+    switch(status){                         
+  
+      case 0x10: PortF_Output(Blue);        
+      break; 
+      case 0x00: PortF_Output(0x00);        
+      break;
+    }
+  }
+}
+
+void PortF_Init(void){ 
+	
+	SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
+	                                  // To Enable any port just sit the corresponding bit to the order in the alphabet
+	                                  // (TM4C123 Data Sheet, 340 - 341)
+  
+	GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
+	                                  // (TM4C123 Data Sheet, 687)
+	
+  GPIO_PORTF_PCTL_R = 0x00000000;         // 0000 0000 0000 0000 0000 0000 0000 0000 We use this register when we have alternate function or dealing with signals but here we clear it all because 
+	                                  // we going do you our pin in the digital mode
+	                                  // (TM4C123 Data Sheet, 688 -689)
+	
+  GPIO_PORTF_DIR_R = 0x04;                // ---- ---- ---- ---- ---- ---- 0000 0100  We just sit pin 2 (Blue LED) to be in the OUTPUT mode (DIR regester is to choose our pin mode)
+	                                  // To make my pin in input mode we clear the bit but if we wanted to be in the output mode we sit the bit
+	                                  // (TM4C123 Data Sheet, 663)
+	
+  GPIO_PORTF_AFSEL_R = 0x00;              // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function (The associated pin functions as a peripheral signal and is
+                                          // controlled by the alternate hardware function if it is sit to 1) so we dont want this so we just clear it
+	                                  // (TM4C123 Data Sheet, 671 - 672)
+	
+  GPIO_PORTF_PUR_R = 0x11;                // ---- ---- ---- ---- ---- ---- 0001 0001  Enable the Pull Up resistor to the PF0 (SW2) and PF4 (SW1) which mean if any switch pressed the Pin will have digital input 0 (GROUND)
+	                                  // (TM4C123 Data Sheet, 677 - 678)
+	
+  GPIO_PORTF_DEN_R = 0xFF;                // ---- ---- ---- ---- ---- ---- 1111 1111  Enable digital pins PF0-PF7 (The DEN register is use to enable the selected pins) 
+	                                  // We enable The Whole port f 
+                                          // (TM4C123 Data Sheet, 682 - 683)
+}
+
+uint32_t PortF_Input(void){    
+	
+  return (GPIO_PORTF_DATA_R&0x10);        // If we dont press any button the value for DATA_R will be 0x11 and when we AND it with 0x10 it will be 0x10
+	                                  // But if we press SW1 the value for DATA_R will be 0x01 and when we AND it with 0x10 it will be 0x00
+	                                  // The value will go to the upper Switch case to decide
+	                                  // (TM4C123 Data Sheet, 662 - 663)
+}	
+
+void PortF_Output(uint32_t data){ 
+	
+  GPIO_PORTF_DATA_R = data;               // We get our value which is 0x04 (BLUE LED) or 0x00, but to keep in mind our input pins will not be effected so PF0 and PF4 will not be effected
+}
 ```
-
-
-
-// anchor
 </details>
 
 <details>
   <summary>Texas Launchpad Simulation</summary>
-	<br>
+<br>
 
 
 // anchor
