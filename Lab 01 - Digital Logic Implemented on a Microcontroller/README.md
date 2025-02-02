@@ -1,21 +1,12 @@
 <p align="center">
-  <img src="Photos/Banner.png"/>
-</p>
-
-This report is Markdown-typed and submitted in Spring 2025 by students Nour Mostafa with ID 2021004938 and Mohamed Abouissa with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
-
-
----
-
-<p align="center">
   <img src="Photos/header.gif"/>
 </p>
 
-In this lab, we explore the fundamentals of digital input and output (I/O) using the Keil uVision simulator and the Tiva C LaunchPad (TM4C123) microcontroller. The primary objective is to familiarize ourselves with software development steps in uVision, including code compilation, simulation, and debugging. Through a series of tasks, we will learn how to initialize and configure GPIO ports, control LEDs, and read input from switches using positive logic.
+In this lab, we explore the fundamentals of digital input and output (I/O) using Keil uVision5 and the [Tiva C LaunchPad (TM4C123) microcontroller](Photos/TM4C123GXL.png). The primary objective is to familiarize ourselves with software development steps in uVision, including code compilation, simulation, and debugging. Through a series of tasks, we will learn how to initialize and configure GPIO ports, control LEDs, and read input from switches using positive logic.
 
 The lab consists of three main parts. First, we implement a simple LED blinking program to understand GPIO port initialization and timing delays. Next, we modify the program to control the blue LED based on the state of an onboard switch. Finally, we expand our implementation to include multiple LEDs and switches, applying logical operations to create specific LED behaviors based on different switch states. By completing this lab, we gain practical experience in embedded systems programming, logic operations, and control flow using the TM4C123 microcontroller.
 
-## Part 1: GREEN LED Blinking 
+## Part 1: Green LED Blinking 
 
 <img src="Photos/part1.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
@@ -226,10 +217,9 @@ By understanding how to configure and utilize microcontrollers like the TM4C123,
 
 ## Resources
 
-[1] mack7999, “TM4C123G LaunchPad Starter Guide,” Instructables. Accessed: Feb. 01, 2025. [Online]. Available: <br> https://www.instructables.com/TM4C123G-LaunchPad-Starter-Guide/  
-[2] J. W. Valvano and J. W. Valvano, Introduction to the Arm® Cortex(TM)-M3, 4. ed. in Embedded systems / Jonathan W. Valvano, no. 1. s.l.: Eigenverl. d. Verf, 2013.  
-[3] EslamG11, “Blinking LED in Tiva C Board (TM4C123G),” Instructables. Accessed: Feb. 01, 2025. [Online]. Available: <br> https://www.instructables.com/Blinking-LED-in-Tiva-C-Board-TM4C123G/  
-[4] Vooi Yap - Embedded Systems Education, #83 TM4C123GH6PM Cortex M4F Microcontroller - Installing Keil uVision and TivaWare for C Series, (Apr. 04, 2024). Accessed: Feb. 01, 2025. [Online Video]. Available: <br> https://www.youtube.com/watch?v=hp4JrezDCgg
+[1] J. W. Valvano, Introduction to the Arm® Cortex(TM)-M3, 4. ed. in Embedded systems.  
+[2] EslamG11, “Blinking LED in Tiva C Board (TM4C123G),” Instructables. Accessed: Feb. 01, 2025. [Online]. Available: <br> https://www.instructables.com/Blinking-LED-in-Tiva-C-Board-TM4C123G/  
+[3] Vooi Yap - Embedded Systems Education, #83 TM4C123GH6PM Cortex M4F Microcontroller - Installing Keil uVision and TivaWare for C Series, (Apr. 04, 2024). Accessed: Feb. 01, 2025. [Online Video]. Available: <br> https://www.youtube.com/watch?v=hp4JrezDCgg
 
 
 <br>
@@ -241,17 +231,17 @@ gantt
     todayMarker off
     axisFormat %a-%Y-%m-%d
     section Preparation         
-        Nour Mostafa : active, 2025-01-23 00:00, 01h
-        Mohamed Abouissa : 2025-01-23 00:00, 01h
+        Nour Mostafa : crit, 2025-01-23 00:00, 01h
+        Mohamed Abouissa : crit, 2025-01-23 00:00, 01h
     section Keil         
-        Nour Mostafa : active, 2025-01-24 00:00, 3h
-        Mohamed Abouissa : 2025-01-24 00:00, 3h
+        Nour Mostafa : crit, 2025-01-24 00:00, 3h
+        Mohamed Abouissa : crit,2025-01-24 00:00, 3h
     section Results       
-        Nour Mostafa : active,2025-01-24 00:00, 3h
-        Mohamed Abouissa : 2025-01-24 00:00, 3h
+        Nour Mostafa : crit, 2025-01-24 00:00, 3h
+        Mohamed Abouissa : crit, 2025-01-24 00:00, 3h
     section Report
-        Nour Mostafa : active,2025-01-30 00:00, 2d
-        Mohamed Abouissa : 2025-01-30 00:00, 2d
+        Nour Mostafa : crit, 2025-01-30 00:00, 2d
+        Mohamed Abouissa : crit, 2025-01-30 00:00, 2d
 ```
 
-This publication adheres to all regulatory laws and guidelines established by the American University of Ras Al Khaimah (AURAK) regarding the dissemination of academic materials.
+This report is Markdown-typed and submitted in Spring 2025 by students Nour Mostafa with ID 2021004938 and Mohamed Abouissa with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment. This publication adheres to all regulatory laws and guidelines established by the [American University of Ras Al Khaimah (AURAK)](https://aurak.ac.ae/) regarding the dissemination of academic materials.
