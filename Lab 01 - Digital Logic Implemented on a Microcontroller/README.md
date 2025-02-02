@@ -10,7 +10,7 @@ In this lab, we explore the fundamentals of digital input and output (I/O) using
 
 The lab consists of three main parts. First, we implement a simple LED blinking program to understand GPIO port initialization and timing delays. Next, we modify the program to control the blue LED based on the state of an onboard switch. Finally, we expand our implementation to include multiple LEDs and switches, applying logical operations to create specific LED behaviors based on different switch states. By completing this lab, we gain practical experience in embedded systems programming, logic operations, and control flow using the TM4C123 microcontroller.
 
-## Part 1: Green LED Blinking 
+## Part 1: Blinking the Green LED 
 
 <img src="Photos/part1.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
@@ -115,7 +115,7 @@ In this part of the lab, we run our Texas Launchpad simulation to verify that ou
 	
 </details>
 
-## Part 2:Controlling Blue LED with a Switch
+## Part 2: Controlling the Blue LED with a Switch
 
 <img src="Photos/part2-2.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
