@@ -204,14 +204,14 @@ gantt
     todayMarker off
     axisFormat %a-%Y-%m-%d
     section Preparation         
-        Nour Mostafa : crit, 2025-01-23 00:00, 01h
-        Mohamed Abouissa : crit, 2025-01-23 00:00, 01h
+        Nour Mostafa : crit, 2025-01-23 00:00, 02h
+        Mohamed Abouissa : crit, 2025-01-23 00:00, 02h
     section Keil         
-        Nour Mostafa : crit, 2025-01-24 00:00, 3h
-        Mohamed Abouissa : crit,2025-01-24 00:00, 3h
+        Nour Mostafa : crit, 2025-01-24 00:00, 1d
+        Mohamed Abouissa : crit,2025-01-24 00:00, 1d
     section Results       
-        Nour Mostafa : crit, 2025-01-24 00:00, 3h
-        Mohamed Abouissa : crit, 2025-01-24 00:00, 3h
+        Nour Mostafa : crit, 2025-01-24 00:00, 1d
+        Mohamed Abouissa : crit, 2025-01-24 00:00, 1d
     section Report
         Nour Mostafa : crit, 2025-01-30 00:00, 2d
         Mohamed Abouissa : crit, 2025-01-30 00:00, 2d
