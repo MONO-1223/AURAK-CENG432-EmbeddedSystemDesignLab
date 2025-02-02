@@ -1,10 +1,31 @@
 <p align="center">
-  <img src="Photos/logo1.png"/>
+  <img src="Photos/Banner.png"/>
+</p>
+
+This report is Markdown-typed and submitted by students Nour Mostafa with ID 2021004938 and Mohamed Abouissa with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
+
+
+---
+
+<p align="center">
+  <img src="Photos/testing2-removebg-preview.png"/>
+</p>
+
+<!-- Badge icons found at https://feathericons.com/-->
+<p align="center">
+
+<a href="https://custom-icon-badges.demolab.com/badge/Academic%20Year-Fall%202024-ffffff?style=for-the-badge&logo=calendar&logoSource=feather&logoColor=gray">
+  <img src="https://custom-icon-badges.demolab.com/badge/Academic%20Year-Spring%202025-ffffff?style=for-the-badge&logo=calendar&logoSource=feather&logoColor=white&labelColor=a50313" title="Academic Year" style="vertical-align:top; margin:4px"></a> <a href="https://custom-icon-badges.demolab.com/badge/Project%20Status-Completed-ffffff?style=for-the-badge&logo=activity&logoSource=feather&logoColor=gray"><img src="https://custom-icon-badges.demolab.com/badge/Project%20Status-Submitted-ffffff?style=for-the-badge&logo=activity&logoSource=feather&logoColor=white&labelColor=a50313" title="Project Status" style="vertical-align:top; margin:4px"></a>
+
 </p>
 
 In this lab, we explore the fundamentals of digital input and output (I/O) using the Keil uVision simulator and the Tiva C LaunchPad (TM4C123) microcontroller. The primary objective is to familiarize ourselves with software development steps in uVision, including code compilation, simulation, and debugging. Through a series of tasks, we will learn how to initialize and configure GPIO ports, control LEDs, and read input from switches using positive logic.
 
 The lab consists of three main parts. First, we implement a simple LED blinking program to understand GPIO port initialization and timing delays. Next, we modify the program to control the Green LED based on the state of an onboard switch, reinforcing our understanding of digital input handling. Finally, we expand our implementation to include multiple LEDs and switches, applying logical operations to create specific LED behaviors based on different switch states. By completing this lab, we gain practical experience in embedded systems programming, logic operations, and control flow using the TM4C123 microcontroller.
+<br>
+<p align="center">
+  <img src="Photos/TM4C123GXL.png" style="width: 1000px" title="Testing all counting cases." />
+</p>
 
 ## Part 1: 
 
@@ -67,7 +88,12 @@ The lab consists of three main parts. First, we implement a simple LED blinking 
 
 ## Part 3: Multi-Switch LED Control
 
-In this part, we are tasked with further expanding the existing code to control LEDs based on the state of two switches (SW1 and SW2) available to us on the board. The objective is to light the Blue LED when SW1 is pressed, light the Red LED when SW2 is pressed, light the Green LED when both switches are pressed simultaneously, and turn off both LEDs when neither switch is pressed. This modification involves implementing conditional statements that check the status of each switch and adjust the corresponding LED output accordingly, ensuring responsive visual feedback based on user input.  <br><br>
+<img src="Photos/part3.gif" width="250" height="300" align="left">
+<img src="Photos/transparentpic.png" width="8" height="300" align="left">
+
+In this part, we are tasked with further expanding the existing code to control LEDs based on the state of two switches (SW1 and SW2) available to us on the board. The objective is to light the Blue LED when SW1 is pressed, light the Red LED when SW2 is pressed, light the Green LED when both switches are pressed simultaneously, and turn off both LEDs when neither switch is pressed. This modification involves implementing conditional statements that check the status of each switch and adjust the corresponding LED output accordingly, ensuring responsive visual feedback based on user input.
+
+<br clear="left"><br>
 
 <details>
 <summary>C Code on EK-TM4C123GXL</summary>
@@ -136,7 +162,5 @@ gantt
         Nour Mostafa : active,2025-01-30 00:00, 2d
         Mohamed Abouissa : 2025-01-30 00:00, 2d
 ```
-
-We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
 
 This publication adheres to all regulatory laws and guidelines established by the American University of Ras Al Khaimah (AURAK) regarding the dissemination of academic materials.
