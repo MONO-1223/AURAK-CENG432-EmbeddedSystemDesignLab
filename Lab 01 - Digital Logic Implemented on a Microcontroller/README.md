@@ -16,60 +16,6 @@ In the first part of this lab, we will focus on making the green LED blink, whic
 Additionally, we’ll revisit key concepts like system clocks and delays, which are necessary to create a precise and predictable blinking pattern. By implementing timing mechanisms through delays, we’ll ensure the LED blinks at regular intervals. By the end of this section, we will have a clear understanding of how to manipulate hardware registers and timing functions to control the LED’s behavior, laying the foundation for more complex embedded system tasks.
 
 <details>
-  <summary>Register-Level Programming</summary>
-<br>
-
-This lab will be executed exclusively on `Port F` of the Tiva board. Therefore, the first step is to enable the clock for `Port F`, which is essential for accessing and configuring its registers. This can be accomplished using the following code:
-
-```C
-SYSCTL_RCGC2_R= 0x00000020;  // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock
-```
-Next, we need to disable the analog functionality of the pins, as we will be using them in digital mode. This is achieved by clearing the eight least significant bits of the `AMSEL` register, as we only have access to these specific pins. The following code accomplishes this:
-
-```C
-GPIO_PORTF_AMSEL_R = 0x00;  // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function
-```
-
-Next, we need to clear the `PCTL` register to select the standard digital function for the pins. This ensures that the pins operate in their default digital mode. The following code accomplishes this:
-
-```C
-GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000 
-```
-
-Now, we need to set the direction of the pin, determining whether it operates in input or output mode. This is done using the `DIR` register. Our goal is to control the green LED, which is connected to `Port F`, Pin 3. To configure this pin as an output, we must set the fourth bit of the `DIR` register to 1 (where 1 represents output mode). This can be achieved by modifying only the least significant 8 bits using the following code:
-
-```C
-GPIO_PORTF_DIR_R = 0x08;  // ---- ---- ---- ---- ---- ---- 0000 1000  We just set pin 3 (Green LED) to be in the OUTPUT mode
-```
-
-Since we are not using the Alternate Function Select `(AFSEL)` register, we need to clear it entirely to ensure the pins operate in their default digital mode. This can be done using the following code:
-
-```C
-GPIO_PORTF_AFSEL_R = 0x00;  // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function 
-```
-
-The final step is to enable the pin by setting it as a digital I/O. This is done by writing 1 to the corresponding bit in the `DEN` (Digital Enable) register, allowing the pin to function as a digital output. The following code accomplishes this:
-
-```C
-GPIO_PORTF_DEN_R = 0x08;  // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3 
-```
-
-At the end, we can consolidate all the code for registering and set it up to blink the green LED through a function. This way, we can simply call the function whenever needed.
-
-```C
-void PortF_Init(void){ 
-  SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock
-  GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function 
-  GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000  
-  GPIO_PORTF_DIR_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  We just set pin 3 (Green LED) to be in the OUTPUT mode   
-  GPIO_PORTF_AFSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function      
-  GPIO_PORTF_DEN_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3    
-}
-```
-
-</details>
-
-<details>
   <summary>C Code on EK-TM4C123GXL</summary>
 <br>
 
@@ -90,43 +36,60 @@ void PortF_Init(void){
 #define SYSCTL_RCGC2_R          (*((volatile unsigned long *)0x400FE108))
 	
 //Function Prototypes
-
 void PortF_Init(void);		
 void Delay(void);
 
 int main(void){    
-  PortF_Init();    			// Call initialization of Port F
+  PortF_Init();    			     // Call initialization of Port F
  
   while(1){
+                                             // My green LED is on Port F pin #3 that mean we need to edit the fourth bit only to work on the green LED
+      GPIO_PORTF_DATA_R = 0x08;              // ---- ---- ---- ---- ---- ---- 0000 1000 For That mean we writing the value 1 (Which mean we drive voltege to it) on Pin PF3 (Green LED on)  
+																				 
 		
-      GPIO_PORTF_DATA_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000 For That mean we writing the value 1 on Pin PF3 (Green LED on)                                 
-      Delay();				 // wait 0.1 sec (Read the Clock part on the introduction)
-      GPIO_PORTF_DATA_R = 0x00;    	 // ---- ---- ---- ---- ---- ---- 0000 0000 For That mean we writing the value 0 on Pin PF3 (Green LED off)   
-      Delay();                     	// wait 0.1 sec (Read the Clock part on the introduction)
+      Delay();				     // Calling the delay function to wait for 0.1 sec (Read the Clock part on the introduction)
+		
+      GPIO_PORTF_DATA_R = 0x00;    	     // ---- ---- ---- ---- ---- ---- 0000 0000 For That mean we writing the value 0 (Which mean it conected to the ground) on Pin PF3 (Green LED off)  
+		
+      Delay();                         	     // wait 0.1 sec (Read the Clock part on the introduction)
   }
 }
 
 // The function to initialize port F pins for input and output
 void PortF_Init(void){ 
-  SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock
-  GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function 
-  GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000  
-  GPIO_PORTF_DIR_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  We just set pin 3 (Green LED) to be in the OUTPUT mode   
-  GPIO_PORTF_AFSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function      
-  GPIO_PORTF_DEN_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3    
+	
+  SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
+                                    // To Enable any port just sit the corresponding bit to the order in the alphabet
+	
+  GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
+	
+  GPIO_PORTF_PCTL_R = 0x00000000;   // 0000 0000 0000 0000 0000 0000 0000 0000 We use this register when we have alternate function or dealing with signals but here we clear it all because 
+                                    // we going do you our pin in the digital mode
+	
+  GPIO_PORTF_DIR_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  We just sit pin 3 (Green LED) to be in the OUTPUT mode (DIR regester is to choose our pin mode)
+                                    // To make my pin in input mode we clear the bit but if we wanted to be in the output mode we sit the bit
+                                    // Above we sit the fourth bit (Which mean PF3 because we strat from PF0 to PF7)
+	
+  GPIO_PORTF_AFSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function (The associated pin functions as a peripheral signal and is
+                                    // controlled by the alternate hardware function if it is sit to 1) so we dont want this so we just clear it
+	
+  GPIO_PORTF_DEN_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3 (The DEN register is use to enable the selected pins) here we just want PF3 to 
+                                    // enabled so we sit the fourth bit (PF3)
 }
+
 // The delay Fucntion
 void Delay(void){
 
 unsigned long  time;  // Variable called time
+	
   time = 1600000;  // 0.1 sec  (Read the Clock part on the introduction)
+	
   while(time!=0){  // When the time go to Zero it will exit the function
     time--;
   }
 }
 ```
 </details>
-
 
 <details>
   <summary>Texas Launchpad Simulation</summary>
