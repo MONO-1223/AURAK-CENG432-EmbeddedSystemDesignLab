@@ -67,8 +67,10 @@ The lab consists of three main parts. First, we implement a simple LED blinking 
 
 ## Part 3: Multi-Switch LED Control
 
+<img align="left" width="250" height="300" src="Photos/part3.gif" hspace="20">
+<br>
 In this part, we are tasked with further expanding the existing code to control LEDs based on the state of two switches (SW1 and SW2) available to us on the board. The objective is to light the Blue LED when SW1 is pressed, light the Red LED when SW2 is pressed, light the Green LED when both switches are pressed simultaneously, and turn off both LEDs when neither switch is pressed. This modification involves implementing conditional statements that check the status of each switch and adjust the corresponding LED output accordingly, ensuring responsive visual feedback based on user input.  <br><br>
-
+<br clear="left"><br>
 <details>
 <summary>C Code on EK-TM4C123GXL</summary>
 <br>
@@ -78,11 +80,6 @@ In this part, we are tasked with further expanding the existing code to control 
 
 ```
 
-// anchor change with our gif or place on the left
-
-
-
-// anchor
 </details>
 
 <details>
