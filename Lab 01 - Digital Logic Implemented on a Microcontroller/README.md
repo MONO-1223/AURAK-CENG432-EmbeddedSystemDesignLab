@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Photos/AURAK.png"/>
+  <img src="Photos/head.png"/>
 </p>
 
 This report is Markdown-typed and submitted in Spring 2025 by students [Nour Mostafa](https://github.com/Nour-MK) with ID 2021004938 and [Mohamed Abouissa](https://github.com/Mohamed-Abouissa) with ID 2021005188 in partial fulfillment of the requirements for the Bachelor of Science degree in Computer Engineering. We extend our sincere appreciation to Eng. Umar Adeel for his insightful feedback which has significantly contributed to the successful completion of this experiment.
@@ -15,7 +15,7 @@ The lab consists of three main parts. First, we implement a simple LED blinking 
 <img src="Photos/part1.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
 
-In the first part of this lab, we will focus on making the green LED blink, which will help us practice register-level programming on the `Tiva board`. This task will involve configuring and controlling the GPIO registers to manipulate the LED's behavior. A solid understanding of the board’s hardware design is crucial, and we will refer to this information as needed. We will also explore how to troubleshoot common issues related to GPIO configuration during this process, ensuring we gain hands-on experience in problem-solving. This exercise will also help us develop a deeper understanding of how embedded systems interact with hardware at a low level.
+In the first part of this lab, we will focus on making the green LED blink, which will help us practice register-level programming on the Tiva board. This task will involve configuring and controlling the GPIO registers to manipulate the LED's behavior. A solid understanding of the board’s hardware design is crucial, and we will refer to this information as needed. We will also explore how to troubleshoot common issues related to GPIO configuration during this process, ensuring we gain hands-on experience in problem-solving. This exercise will also help us develop a deeper understanding of how embedded systems interact with hardware at a low level.
 
 Additionally, we’ll revisit key concepts like system clocks and delays, which are necessary to create a precise and predictable blinking pattern. By implementing timing mechanisms through delays, we’ll ensure the LED blinks at regular intervals. By the end of this section, we will have a clear understanding of how to manipulate hardware registers and timing functions to control the LED’s behavior, laying the foundation for more complex embedded system tasks.
 
@@ -115,14 +115,14 @@ In this part of the lab, we run our Texas Launchpad simulation to verify that ou
 	
 </details>
 
-## Part 2: Green LED with Switch
+## Part 2:Controlling Blue LED with a Switch
 
 <img src="Photos/part2-2.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
 
-In the second part of the lab, we will program the green LED on our TIVA board to turn off when the built-in button is pressed. This will involve configuring the button as an input and the green LED as an output. When the button is pressed, the microcontroller will detect the change in state and respond by turning off the LED immediately and consistently.
+In the second part of the lab, we will program the blue LED on our TIVA board to turn off when the built-in button is pressed. This will involve configuring the button as an input and the blue LED as an output. When the button is pressed, the microcontroller will detect the change in state and respond by turning off the LED immediately and consistently.
 
-For a better understanding of how the button and green LED are internally connected to the microcontroller, refer to the introduction section. It explains the internal wiring, pull-up/down resistor configurations, and how the button press affects the logic level read by the microcontroller. This knowledge will help in correctly setting up the GPIO pins and writing efficient code for the task.
+For a better understanding of how the button and blue LED are internally connected to the microcontroller, refer to this [figure](Photos/ledschema.png). It explains the internal wiring, pull-up/down resistor configurations, and how the button press affects the logic level read by the microcontroller. This knowledge will help in correctly setting up the GPIO pins and writing efficient code for the task.
 
 To ensure reliable operation, we will also consider debouncing techniques to prevent unintended toggling caused by mechanical noise in the button, improving system stability, accuracy, and responsiveness.
 
