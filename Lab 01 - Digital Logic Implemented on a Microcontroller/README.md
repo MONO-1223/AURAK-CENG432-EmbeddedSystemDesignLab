@@ -117,7 +117,7 @@ In this part of the lab, we run our Texas Launchpad simulation to verify that ou
 
 ## Part 2: Controlling the Blue LED with a Switch
 
-<img src="Photos/part2-2.gif" width="250" height="300" align="left">
+<img src="Photos/part2.gif" width="250" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
 
 In the second part of the lab, we will program the blue LED on our TIVA board to turn off when the built-in button is pressed. This will involve configuring the button as an input and the blue LED as an output. When the button is pressed, the microcontroller will detect the change in state and respond by turning off the LED immediately and consistently.
@@ -170,11 +170,11 @@ int main(void){
 
 void PortF_Init(void){ 
 	
-	SYSCTL_RCGC2_R= 0x00000020;       // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
+  SYSCTL_RCGC2_R= 0x00000020;             // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
 	                                  // To Enable any port just sit the corresponding bit to the order in the alphabet
 	                                  // (TM4C123 Data Sheet, 340 - 341)
   
-	GPIO_PORTF_AMSEL_R = 0x00;        // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
+  GPIO_PORTF_AMSEL_R = 0x00;              // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
 	                                  // (TM4C123 Data Sheet, 687)
 	
   GPIO_PORTF_PCTL_R = 0x00000000;         // 0000 0000 0000 0000 0000 0000 0000 0000 We use this register when we have alternate function or dealing with signals but here we clear it all because 
@@ -216,8 +216,13 @@ void PortF_Output(uint32_t data){
   <summary>Texas Launchpad Simulation</summary>
 <br>
 
+<p align="center">
+  <img src="Photos/Part2(on).png" style="width: 49%; height: 300px;" title="Blue LED is On (SW1 Not Pressed)" /> <img src="Photos/Part2(off).png" style="width: 49%; height: 300px;" title="Blue LED is Off (SW1 Is Pressed)" />
+</p>
 
-// anchor
+Before running our code on the TIVA board, we first test it using the `Texas LaunchPad simulation`. In the left image, we observe that the blue LED `(PF2)` is on, even though no switches are pressed. The `data register` value is `0x15 (0001 0101 in binary)`, indicating that `PF2` is high (LED on), while both switches `(PF0 and PF4)` remain unpressed. This is because we use the built-in pull-up resistors, making the switches active-low.
+
+In the right image, the LED turns off when Switch 1 is pressed. The `data register` value changes to `0x01 (0000 0001 in binary)`, showing that `PF4` is now low (switch 1 pressed), and `PF2` is low, turning off the blue LED.
 
 </details>
 
