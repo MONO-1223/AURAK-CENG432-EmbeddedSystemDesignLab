@@ -20,79 +20,53 @@ In this part of the lab, we will build upon the concepts learned in the previous
 <br>
 
 ```C
-// The libraries that we need
-#include <stdint.h>
-#include "tm4c123gh6pm.h"
-
-#define GPIO_PORTF_DATA_R       (*((volatile unsigned long *)0x400253FC))
-#define GPIO_PORTF_DIR_R        (*((volatile unsigned long *)0x40025400))
-#define GPIO_PORTF_AFSEL_R      (*((volatile unsigned long *)0x40025420))
-#define GPIO_PORTF_DEN_R        (*((volatile unsigned long *)0x4002551C))
-#define GPIO_PORTF_AMSEL_R      (*((volatile unsigned long *)0x40025528))
-#define GPIO_PORTF_PCTL_R       (*((volatile unsigned long *)0x4002552C))
-#define SYSCTL_RCGCGPIO_R       (*((volatile unsigned long *)0x400FE608))
-#define SYSCTL_PRGPIO_R         (*((volatile unsigned long *)0x400FEA08))
-#define SYSCTL_RCGC2_GPIOF      0x00000020  // port F Clock Gating Control
-#define SYSCTL_RCGC2_R          (*((volatile unsigned long *)0x400FE108))
-	
-//Function Prototypes
-
-void PortF_Init(void);		
-void Delay(void);
-
-int main(void){    
-  PortF_Init();    			// Call initialization of Port F
- 
-  while(1){
-                                         // My green LED is on Port F pin #3 that mean we need to edit the fourth bit only to work on the green LED
-      GPIO_PORTF_DATA_R = 0x08;          // ---- ---- ---- ---- ---- ---- 0000 1000 For That mean we writing the value 1 (Which mean we drive voltege to it) on Pin PF3 (Green LED on)  
-                                         // (TM4C123 Data Sheet, 662 - 663)
-																				 
-		
-      Delay();				 // Calling the delay function to wait for 0.1 sec (Read the Clock part on the introduction)
-		
-      GPIO_PORTF_DATA_R = 0x00;    	 // ---- ---- ---- ---- ---- ---- 0000 0000 For That mean we writing the value 0 (Which mean it conected to the ground) on Pin PF3 (Green LED off)  
-		
-      Delay();                         	 // wait 0.1 sec (Read the Clock part on the introduction)
-  }
-}
-
-                                         // The function to initialize port F pins for input and output
-void PortF_Init(void){ 
-	
-  SYSCTL_RCGC2_R= 0x00000020;            // 0000 0000 0000 0000 0000 0000 0010 0000  This for enabling the Prot F clock (Port F,E,D,C,B and A) (10 0000 = 0x20)
-                                         // To Enable any port just sit the corresponding bit to the order in the alphabet
-                                         // (TM4C123 Data Sheet, 340 - 341)
-	
-  GPIO_PORTF_AMSEL_R = 0x00;             // ---- ---- ---- ---- ---- ---- 0000 0000 For Disabling the analog function (Becuse we are dealing only with the Digital function in this part)
-                                         // (TM4C123 Data Sheet, 687)
-	
-  GPIO_PORTF_PCTL_R = 0x00000000;        // 0000 0000 0000 0000 0000 0000 0000 0000 We use this register when we have alternate function or dealing with signals but here we clear it all because 
-                                         // we going do you our pin in the digital mode
-                                         // (TM4C123 Data Sheet, 688 -689)
-	
-  GPIO_PORTF_DIR_R = 0x08;               // ---- ---- ---- ---- ---- ---- 0000 1000  We just sit pin 3 (Green LED) to be in the OUTPUT mode (DIR regester is to choose our pin mode)
-                                         // To make my pin in input mode we clear the bit but if we wanted to be in the output mode we sit the bit
-                                         // Above we sit the fourth bit (Which mean PF3 because we strat from PF0 to PF7)
-                                         // (TM4C123 Data Sheet, 663)
-	
-  GPIO_PORTF_AFSEL_R = 0x00;             // ---- ---- ---- ---- ---- ---- 0000 0000  No alternate function (The associated pin functions as a peripheral signal and is
-                                         // controlled by the alternate hardware function if it is sit to 1) so we dont want this so we just clear it
-                                         // (TM4C123 Data Sheet, 671 - 672)
-	
-  GPIO_PORTF_DEN_R = 0x08;               // ---- ---- ---- ---- ---- ---- 0000 1000  Enable digital pins PF3 (The DEN register is use to enable the selected pins) here we just want PF3 to 
-                                         // enabled so we sit the fourth bit (PF3)
-                                         // (TM4C123 Data Sheet, 682 - 683)
-}
-// The delay Fucntion
-void Delay(void){
-
-unsigned long  time;                     // Variable called time
-	
-  time = 1600000;                        // 0.1 sec  (Read the Clock part on the introduction)
-	
-  while(time!=0){                        // When the time go to Zero it will exit the function
-    time--;
-  }
-}
+// M7MO9A
 ```
+</details>
+
+<details>
+  <summary>Texas Launchpad Simulation</summary>
+	
+<br>
+
+// M7MO9A
+	
+</details>
+
+## Conclusion
+
+// M7MO9A
+
+## Resources
+
+[1] Texas Instruments Incorporated. (2014). Tiva™ TM4C123GH6PM Microcontroller data sheet. Texas Instruments Incorporated. <br> https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf  
+[2] Texas Instruments Incorporated. (2013). Tiva™ C Series TM4C123G LaunchPad (User's Guide). Texas Instruments Incorporated. <br>  https://www.ti.com/lit/ug/spmu296/spmu296.pdf  
+[3] Valvano, J. W. (2014). Embedded systems: Introduction to ARM® Cortex-M microcontrollers (5th ed., Vol. 1). Self-published. <br> https://users.ece.utexas.edu/~valvano/Volume1/E-Book/   
+
+
+<br>
+
+```mermaid
+gantt
+    title Work Division Gantt Chart
+    tickInterval 1day
+    todayMarker off
+    axisFormat %a-%Y-%m-%d
+    section Preparation         
+        Nour Mostafa : crit, 2025-02-2 00:00, 02h
+        Mohamed Abouissa : crit, 2025-02-2 00:00, 02h
+    section Keil         
+        Mohamed Abouissa : crit,2025-02-5 00:00, 1d
+    section Results       
+        Nour Mostafa : crit, 2025-02-3 00:00, 1d
+    section Report
+        Nour Mostafa : crit, 2025-02-6 00:00, 2d
+        Mohamed Abouissa : crit, 2025-02-9 00:00, 2d
+```
+
+This publication adheres to all regulatory laws and guidelines established by the [American University of Ras Al Khaimah (AURAK)](https://aurak.ac.ae/) regarding the dissemination of academic materials.
+
+
+
+
+
