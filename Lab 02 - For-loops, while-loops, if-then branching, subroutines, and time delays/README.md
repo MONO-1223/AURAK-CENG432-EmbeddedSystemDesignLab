@@ -72,11 +72,17 @@ Again, the left photo shows that, when no switch is pressed on the LaunchPad, th
 
 ## Assembly Code on EK-TM4C123GXL
 
-Configuring a register in assembly typically follows three main steps. First, we load the base address of the register into a general-purpose register. For example, to enable the system clock for GPIO, we load the base address of `SYSCTL_RCGCGPIO_R` into `R1`, then retrieve the value stored at that address into R0 using the `LDR` instruction.
+Configuring a register in assembly typically follows three main steps. First, we load the base address of the register into a general-purpose register. For example, to enable the system clock for GPIO, we load the base address of `SYSCTL_RCGCGPIO_R` into `R1`, then retrieve the value stored at that address into R0 using the `LDR` instruction. Next, we modify the necessary bits based on whether we need to set or clear specific values. To set a bit, we use the `ORR` (bitwise OR) instruction, while to clear a bit, we use `BIC` (bit clear). For instance, to enable Port F, we apply `ORR R0, R0, #0x20`, which ensures that bit 5 is set while leaving other bits unchanged. Finally, we store the updated value back into the register using the `STR` instruction. This writes the modified data in R0 back to the memory address stored in `R1`, ensuring the configuration takes effect. By following this structured approach, we can effectively configure hardware registers in assembly language.
 
-Next, we modify the necessary bits based on whether we need to set or clear specific values. To set a bit, we use the `ORR (bitwise OR)` instruction, while to clear a bit, we use `BIC (bit clear)`. For instance, to enable Port F, we apply `ORR R0, R0, #0x20`, which ensures that bit 5 is set while leaving other bits unchanged.
+The delay function in the given ARM assembly code creates a simple loop-based delay by loading an initial value into register `R0` and decrementing it iteratively until it reaches zero. The instruction `LDR R0,=400000` loads the immediate value `400000` (or any other desired delay value) into `R0`, setting the number of loop iterations. The `SUBS R0,#1` instruction then decrements `R0` by 1 while updating the condition flags in the CPSR (Current Program Status Register). The `BNE wait` (Branch if Not Equal) instruction checks if `R0` is zero; if not, it loops back to the `wait` label, continuing the decrement process. Once `R0` reaches zero, the loop terminates, and execution proceeds to `BX LR`, which returns control to the calling function. The duration of the delay is determined by the initial value loaded into `R0`, with larger values resulting in longer delays. For instance, if we were to design for a 1 ms delay rather than 100 ms, then we would exchange the 400,000 with [4,000](Photos/). 
 
-Finally, we store the updated value back into the register using the `STR` instruction. This writes the modified data in R0 back to the memory address stored in `R1`, ensuring the configuration takes effect. By following this structured approach, we can effectively configure hardware registers in assembly language.
+In our program, we used various addressing modes to efficiently access and manipulate data. For example, the LDR instruction `LDR R1, =SYSCTL_RCGCGPIO_R` with an immediate value (denoted by =) loads the address `SYSCTL_RCGCGPIO_R` directly into register `R1`. This is considered __immediate addressing__ because the operand is directly provided as an immediate value, not calculated via memory. The instruction `LDR R0, [R1]` loads the value from the memory address stored in register `R1` into `R0`. The value in `R1` is used as the memory address, and the contents at that address are loaded into `R0`. This is a classic example of register __indirect addressing__. The MOV instruction `MOV R0, #00` moves the immediate value `00` into register `R0`. Since the operand is a constant, this uses __immediate addressing__, where the value is directly supplied to the instruction. Similar to LDR, this STR (store) instruction `STR R0, [R2]` stores the value in register `R0` at the memory address held in register `R2`. It uses __register indirect addressing__ because the address is specified in `R2`, and the data in `R0` is written to that address. The EOR (exclusive OR) instruction `EOR R0, R0, #0x08` takes the value in `R0` and applies the immediate value `0x08` to it. It then stores the result in `R0`. This is an example of __immediate addressing__ because the value `0x08` is supplied directly to the instruction. The BNE (branch if not equal) instruction `BNE wait` performs a branch based on the condition flags. The target label wait is specified as an offset from the current program counter `PC`. The branch will jump to the address corresponding to the label. This is an example of __PC-relative addressing__, as the destination address is computed relative to the current `PC`.
+
+A __Reset Vector__ is the initial memory address where the processor begins execution when it is reset. It's essentially the starting point of the program after a system reset or power-up. The Reset Vector typically points to the entry point of the program's startup routine, which initializes hardware components, sets up memory, and prepares the system for further execution. In embedded systems like microcontrollers, the Reset Vector is crucial because it ensures the program begins execution in a known state.
+
+The `AREA` directive in assembly language is used to define a section of code or data within the program. It specifies the name of the section, its type (such as CODE or DATA), and alignment requirements. For example, `AREA |.text|, CODE, READONLY, ALIGN=2` defines a code section named `.text`, specifying that the section is read-only and aligned to 2-byte boundaries. This ensures that the assembly code is organized properly in memory, making it more efficient and allowing the assembler to manage sections of the program accordingly.
+
+The `EXPORT` directive in assembly language is used to make a label or symbol visible to other modules or files. By marking a label with `EXPORT`, it can be accessed from other parts of the program, even if those parts are located in separate files or modules. For example, `EXPORT Start` makes the Start label available for external references, which is especially useful in modular or multi-file projects where different pieces of code need to interact with each other. This allows for better modularity and code reuse.
 
 ```asm
 ; Here we just saving the base address + offset for each register i will use 
@@ -156,13 +162,11 @@ loop  BL   Delay                                    ; 100 ms
       STR  R0,[R2]                                  ; if switch pressed
       B    loop                                     ; branch to label "loop"
 						     
-						    ; 4 cycles in simulation, 3 on the real board
-Delay LDR  R0,=400000                               ; (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
-wait  SUBS R0,#1                                    ; 
-      BNE  wait                                     ;
-      BX   LR                                       ;
-                                                    ;
-                                                    ;
+Delay LDR  R0,=400000                               ; Load immediate value 400,000 into R0 (loop counter) - (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
+wait  SUBS R0,#1                                    ; Subtract 1 from R0 and update flags (N, Z, C, V)
+      BNE  wait                                     ; If R0 ≠ 0, branch back to 'wait' (repeat the loop)
+      BX   LR                                       ; Return from subroutine
+                                                    
     ALIGN                                           ; Make sure the end of this section is aligned *******************
     END                                             ; End of file
 ```
@@ -170,7 +174,11 @@ wait  SUBS R0,#1                                    ;
 
 ## Conclusion
 
-// Nour
+This experiment provided valuable hands-on experience in measuring execution time in embedded systems, reinforcing the importance of precise timing for real-time applications. By implementing LED toggling through switch interactions, we explored critical concepts such as negative logic switches, positive logic LEDs, and timing variations between simulation and hardware execution. Through assembly-level programming on the TM4C123 microcontroller, we examined how different execution environments—simulated and real-world—affect timing accuracy, highlighting the discrepancies caused by pipeline behavior and hardware imperfections. By utilizing an oscilloscope for real-time measurement, we ensured accurate delay verification and gained deeper insights into execution cycle estimations. The observed variations between theoretical calculations, simulation results, and actual hardware performance underscored the practical challenges engineers face when designing embedded systems. Ultimately, this lab enhanced our understanding of low-level programming, timing analysis, and hardware behavior.
+
+
+
+
 
 ## Resources
 
