@@ -70,106 +70,102 @@ In simulation, where each iteration takes 4 cycles (1 for `SUBS` and 3 for `BNE`
 
 Again, the left photo shows that, when no switch is pressed on the LaunchPad, the green LED remains off. The oscilloscope reading above confirms this, showing the switch signal at 1, which indicates that it is not pressed, while the LED signal remains at 0. When the switch is pressed in the right photo, its signal transitions to 0, indicating activation. As a result, we observe the LED toggling on and off through the signal's oscillations. In the simulation, the delta is measured to be 0.203 s compared to the Width in the oscilloscope which read 150 ms (i.e. LED is ON for 150 ms and OFF for 150 ms). Both results are valid as they are within the tolerance range from 120 ms to 280 ms.
 
-```assembly
-// Here we just saving the base address + offset for each register i will use 
-// Port F have the base address 0x40025000 (TM4C123 Data Sheet, 659)
-
-GPIO_PORTF_DATA_R       EQU   0x400253FC            // ???????
-GPIO_PORTF_DIR_R        EQU   0x40025400            // (TM4C123 Data Sheet, 633)  
-GPIO_PORTF_AFSEL_R      EQU   0x40025420            // (TM4C123 Data Sheet, 671)        
-GPIO_PORTF_PUR_R        EQU   0x40025510            // (TM4C123 Data Sheet, 677)
-GPIO_PORTF_DEN_R        EQU   0x4002551C            // (TM4C123 Data Sheet, 682)
-GPIO_PORTF_AMSEL_R      EQU   0x40025528            // (TM4C123 Data Sheet, 687)
-GPIO_PORTF_PCTL_R       EQU   0x4002552C            // (TM4C123 Data Sheet, 688)
-SYSCTL_RCGCGPIO_R       EQU   0x400FE608            // (TM4C123 Data Sheet, 340)
-                                                    //
-        AREA    |.text|, CODE, READONLY, ALIGN=2    //
-        THUMB                                       // ****************************
-        EXPORT  Start                               //
-Start                                               //
-SWITCH  EQU 0x40025040                              //
-LED     EQU 0x40025020                              //
-                                                    //
-                                                    // Activate clock for Port F
-                                                    //
-      LDR R1, =SYSCTL_RCGCGPIO_R                    //
-      LDR R0, [R1]                                  //
-      ORR R0, R0, #0x20                             // Clock for F you need to se the Last bit (OR with the Base address)(0010 0000)
-      STR R0, [R1]                                  // (TM4C123 Data Sheet, 340)
-      NOP                                           // NOP = No Opration
-      NOP                                           // Allow time to finish activating
-                                                    // No need to unlock PE2,PE3,PE4
-                                                    // Disable analog functionality
-      LDR R1, =GPIO_PORTF_AMSEL_R                   // (TM4C123 Data Sheet, 687)
-      LDR R0, [R1]                                  //
-      BIC R0, R0, #0x18                             // No analog functionality on  PF3,PF4 , BIC stand for Bit Clear so We clear PF3,PF4
-      STR R0, [R1]                                  //
-                                               	    //
-                                                    // Configure as GPIO
-      LDR R1, =GPIO_PORTF_PCTL_R                    // (TM4C123 Data Sheet, 688)
-      LDR R0, [R1]                                  //
-      LDR R2, =0x000FF000                           // Regular function on PF3,PF4
-      BIC R0, R0, R2                                //
-      STR R0, [R1]                                  // 
-                                                    //
-                                                    // Set direction register
-      LDR R1, =GPIO_PORTF_DIR_R                     //
-      LDR R0, [R1]                                  // (TM4C123 Data Sheet, 633)
-      ORR R0, R0, #0x08                             // Output on PF3  set bit PF3
-      BIC R0, R0, #0x10                             // Input on PF4   set bit PF4
-      STR R0, [R1]                                  // 
-                                                    // Regular port function
-      LDR R1, =GPIO_PORTF_AFSEL_R                   // (TM4C123 Data Sheet, 671)
-      LDR R0, [R1]                                  //
-      BIC R0, R0, #0x18                             // GPIO on PF3,PF4 set bit PF3 and PF4
-      STR R0, [R1]                                  // 
-	                                            //
-      LDR R1, =GPIO_PORTF_PUR_R                     // (TM4C123 Data Sheet, 677)
-      LDR R0, [R1]                                  //
-      ORR R0, R0, #0x10                             // Enable pullup on PF4 so sit PF4
-      STR R0, [R1]                                  //
-                                                    // Enable digital port
-      LDR R1, =GPIO_PORTF_DEN_R                     // (TM4C123 Data Sheet, 682)
-      LDR R0, [R1]                                  //
-      ORR R0, R0, #0x18                             // Enable data on PF3,PF4 set bit PF3 and PF4
-      STR R0, [R1]                                  //
-	                                            //
-      LDR R1,=SWITCH                                // R1 = PF4, 0x40025040   
-      LDR R2,=LED                                   // R2 = PF3, 0x40025020    
-	                                            //
-						    //
-						    // *************************
-clear MOV  R0,#00                                   // LED off
-      STR  R0,[R2]                                  //
-	                                            //
-loop  BL   Delay                                    // 100 ms
-      LDR  R0,[R1]                                  // R0 = PF4, 0x00,0x10
-      ANDS R0,#0x10                                 //
-      BNE  clear                                    // LED off if switch not pressed
-      LDR  R0,[R2]                                  //
-      EOR  R0,R0,#0x08                              // toggle
-      STR  R0,[R2]                                  // if switch pressed
-      B    loop                                     // *************************
-	                                            //
-						    //
-						    //
-                                                    // 
-						    // 4 cycles in simulation, 3 on the real board
-Delay LDR  R0,=400000                               // 
-wait  SUBS R0,#1                                    // 
-      BNE  wait                                     //
-      BX   LR                                       //
-                                                    //
-                                                    //
-    ALIGN                                           // Make sure the end of this section is aligned *******************
-    END                                             // End of file
-```
+## Assembly Code on EK-TM4C123GXL
 
 Configuring a register in assembly typically follows three main steps. First, we load the base address of the register into a general-purpose register. For example, to enable the system clock for GPIO, we load the base address of `SYSCTL_RCGCGPIO_R` into `R1`, then retrieve the value stored at that address into R0 using the `LDR` instruction.
 
 Next, we modify the necessary bits based on whether we need to set or clear specific values. To set a bit, we use the `ORR (bitwise OR)` instruction, while to clear a bit, we use `BIC (bit clear)`. For instance, to enable Port F, we apply `ORR R0, R0, #0x20`, which ensures that bit 5 is set while leaving other bits unchanged.
 
 Finally, we store the updated value back into the register using the `STR` instruction. This writes the modified data in R0 back to the memory address stored in `R1`, ensuring the configuration takes effect. By following this structured approach, we can effectively configure hardware registers in assembly language.
+
+```asm
+; Here we just saving the base address + offset for each register i will use 
+; Port F have the base address 0x40025000 (TM4C123 Data Sheet, 659)
+
+GPIO_PORTF_DATA_R       EQU   0x400253FC            ; ???????
+GPIO_PORTF_DIR_R        EQU   0x40025400            ; (TM4C123 Data Sheet, 633)  
+GPIO_PORTF_AFSEL_R      EQU   0x40025420            ; (TM4C123 Data Sheet, 671)        
+GPIO_PORTF_PUR_R        EQU   0x40025510            ; (TM4C123 Data Sheet, 677)
+GPIO_PORTF_DEN_R        EQU   0x4002551C            ; (TM4C123 Data Sheet, 682)
+GPIO_PORTF_AMSEL_R      EQU   0x40025528            ; (TM4C123 Data Sheet, 687)
+GPIO_PORTF_PCTL_R       EQU   0x4002552C            ; (TM4C123 Data Sheet, 688)
+SYSCTL_RCGCGPIO_R       EQU   0x400FE608            ; (TM4C123 Data Sheet, 340)
+                                                    
+        AREA    |.text|, CODE, READONLY, ALIGN=2    ;
+        THUMB                                       ; ****************************
+        EXPORT  Start                               ;
+Start                                               ;
+SWITCH  EQU 0x40025040                              ; PF4
+LED     EQU 0x40025020                              ; PF3
+                                                    
+                                                    ; Activate clock for Port F
+      LDR R1, =SYSCTL_RCGCGPIO_R                    ;
+      LDR R0, [R1]                                  ;
+      ORR R0, R0, #0x20                             ; Clock for F you need to set the Last bit (OR with the Base address)(0010 0000)
+      STR R0, [R1]                                  ; (TM4C123 Data Sheet, 340)
+      NOP                                           ; NOP = No Opration
+      NOP                                           ; Allow time to finish activating
+                                                    ; No need to unlock PE2,PE3,PE4
+                                                    ; Disable analog functionality
+      LDR R1, =GPIO_PORTF_AMSEL_R                   ; (TM4C123 Data Sheet, 687)
+      LDR R0, [R1]                                  ;
+      BIC R0, R0, #0x18                             ; No analog functionality on  PF3,PF4 , BIC stand for Bit Clear so We clear PF3,PF4
+      STR R0, [R1]                                  ;
+                                               	    
+                                                    ; Configure as GPIO
+      LDR R1, =GPIO_PORTF_PCTL_R                    ; (TM4C123 Data Sheet, 688)
+      LDR R0, [R1]                                  ;
+      LDR R2, =0x000FF000                           ; Regular function on PF3,PF4
+      BIC R0, R0, R2                                ;
+      STR R0, [R1]                                  ; 
+                                                    
+                                                    ; Set direction register
+      LDR R1, =GPIO_PORTF_DIR_R                     ;
+      LDR R0, [R1]                                  ; (TM4C123 Data Sheet, 633)
+      ORR R0, R0, #0x08                             ; Output on PF3  set bit PF3
+      BIC R0, R0, #0x10                             ; Input on PF4   set bit PF4
+      STR R0, [R1]                                  ; 
+                                                    ; Regular port function
+      LDR R1, =GPIO_PORTF_AFSEL_R                   ; (TM4C123 Data Sheet, 671)
+      LDR R0, [R1]                                  ;
+      BIC R0, R0, #0x18                             ; GPIO on PF3,PF4 set bit PF3 and PF4
+      STR R0, [R1]                                  ; 
+	                                            ;
+      LDR R1, =GPIO_PORTF_PUR_R                     ; (TM4C123 Data Sheet, 677)
+      LDR R0, [R1]                                  ;
+      ORR R0, R0, #0x10                             ; Enable pullup on PF4 so sit PF4
+      STR R0, [R1]                                  ;
+                                                    ; Enable digital port
+      LDR R1, =GPIO_PORTF_DEN_R                     ; (TM4C123 Data Sheet, 682)
+      LDR R0, [R1]                                  ;
+      ORR R0, R0, #0x18                             ; Enable data on PF3,PF4 set bit PF3 and PF4
+      STR R0, [R1]                                  ;
+	                                            
+      LDR R1,=SWITCH                                ; R1 = PF4, 0x40025040   
+      LDR R2,=LED                                   ; R2 = PF3, 0x40025020    
+	                                            
+clear MOV  R0,#00                                   ; LED off
+      STR  R0,[R2]                                  ;
+	                                            
+loop  BL   Delay                                    ; 100 ms
+      LDR  R0,[R1]                                  ; R0 = PF4, 0x00,0x10
+      ANDS R0,#0x10                                 ;
+      BNE  clear                                    ; LED off if switch not pressed
+      LDR  R0,[R2]                                  ;
+      EOR  R0,R0,#0x08                              ; toggle
+      STR  R0,[R2]                                  ; if switch pressed
+      B    loop                                     ; branch to label "loop"
+						     
+						    ; 4 cycles in simulation, 3 on the real board
+Delay LDR  R0,=400000                               ; (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
+wait  SUBS R0,#1                                    ; 
+      BNE  wait                                     ;
+      BX   LR                                       ;
+                                                    ;
+                                                    ;
+    ALIGN                                           ; Make sure the end of this section is aligned *******************
+    END                                             ; End of file
+```
 
 
 ## Conclusion
