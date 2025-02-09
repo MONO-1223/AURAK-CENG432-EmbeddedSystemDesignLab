@@ -39,7 +39,7 @@ GPIO_PORTF_PCTL_R       EQU   0x4002552C            // (TM4C123 Data Sheet, 688)
 SYSCTL_RCGCGPIO_R       EQU   0x400FE608            // (TM4C123 Data Sheet, 340)
                                                     //
         AREA    |.text|, CODE, READONLY, ALIGN=2    //
-        THUMB                                       //
+        THUMB                                       // ****************************
         EXPORT  Start                               //
 Start                                               //
 SWITCH  EQU 0x40025040                              //
@@ -76,24 +76,24 @@ LED     EQU 0x40025020                              //
                                                     // Regular port function
       LDR R1, =GPIO_PORTF_AFSEL_R                   // (TM4C123 Data Sheet, 671)
       LDR R0, [R1]                                  //
-      BIC R0, R0, #0x18                             // GPIO on PF3,PF4
+      BIC R0, R0, #0x18                             // GPIO on PF3,PF4 set bit PF3 and PF4
       STR R0, [R1]                                  // 
 	                                            //
       LDR R1, =GPIO_PORTF_PUR_R                     // (TM4C123 Data Sheet, 677)
       LDR R0, [R1]                                  //
-      ORR R0, R0, #0x10                             // Enable pullup on PF4
+      ORR R0, R0, #0x10                             // Enable pullup on PF4 so sit PF4
       STR R0, [R1]                                  //
                                                     // Enable digital port
       LDR R1, =GPIO_PORTF_DEN_R                     // (TM4C123 Data Sheet, 682)
       LDR R0, [R1]                                  //
-      ORR R0, R0, #0x18                             // Enable data on PF3,PF4
+      ORR R0, R0, #0x18                             // Enable data on PF3,PF4 set bit PF3 and PF4
       STR R0, [R1]                                  //
 	                                            //
       LDR R1,=SWITCH                                // R1 = PF4, 0x40025040   
       LDR R2,=LED                                   // R2 = PF3, 0x40025020    
 	                                            //
 						    //
-						    //
+						    // *************************
 clear MOV  R0,#00                                   // LED off
       STR  R0,[R2]                                  //
 	                                            //
@@ -104,21 +104,28 @@ loop  BL   Delay                                    // 100 ms
       LDR  R0,[R2]                                  //
       EOR  R0,R0,#0x08                              // toggle
       STR  R0,[R2]                                  // if switch pressed
-      B    loop                                     //
+      B    loop                                     // *************************
 	                                            //
 						    //
 						    //
                                                     // 
-						    // 4 cycles in simulation, 5 on the real board
+						    // 4 cycles in simulation, 3 on the real board
 Delay LDR  R0,=400000                               // 
 wait  SUBS R0,#1                                    // 
       BNE  wait                                     //
       BX   LR                                       //
                                                     //
                                                     //
-    ALIGN                                           // Make sure the end of this section is aligned
+    ALIGN                                           // Make sure the end of this section is aligned *******************
     END                                             // End of file
 ```
+
+Configuring a register in assembly typically follows three main steps. First, we load the base address of the register into a general-purpose register. For example, to enable the system clock for GPIO, we load the base address of `SYSCTL_RCGCGPIO_R` into `R1`, then retrieve the value stored at that address into R0 using the `LDR` instruction.
+
+Next, we modify the necessary bits based on whether we need to set or clear specific values. To set a bit, we use the `ORR (bitwise OR)` instruction, while to clear a bit, we use `BIC (bit clear)`. For instance, to enable Port F, we apply `ORR R0, R0, #0x20`, which ensures that bit 5 is set while leaving other bits unchanged.
+
+Finally, we store the updated value back into the register using the `STR` instruction. This writes the modified data in R0 back to the memory address stored in `R1`, ensuring the configuration takes effect. By following this structured approach, we can effectively configure hardware registers in assembly language.
+
 </details>
 
 <details>
@@ -128,6 +135,10 @@ wait  SUBS R0,#1                                    //
 <p align="center">
   <img src="Photos/launchpad100delaynotpressed.png" style="width: 49%; height: 300px;" title="Green LED is Off" /> <img src="Photos/launchpad100delaypressed.png" style="width: 49%; height: 300px;" title="Green LED is On" />
 </p>
+
+In the left image, we can see that no switch is pressed on the LaunchPad, causing the green LED to remain off. The oscilloscope reading above confirms this, showing the switch signal at 1 `(active low)`, which indicates that it is not pressed, while the LED signal remains at 0.
+
+In the right image, when the switch is pressed, its signal transitions to 0, indicating activation. As a result, we observe the LED toggling on and off. By analyzing the oscilloscope waveform, we can measure the time between consecutive ON states, which is approximately `0.100 seconds (100 ms)`, confirming the expected delay. However, slight variations in the timing occur due to the uncertainty of whether the BNE (branch if not equal) instruction takes the branch or not, meaning each iteration does not always take exactly 4 cycles. This variability accounts for the minor fluctuations in the measured delay.
 	
 </details>
 
