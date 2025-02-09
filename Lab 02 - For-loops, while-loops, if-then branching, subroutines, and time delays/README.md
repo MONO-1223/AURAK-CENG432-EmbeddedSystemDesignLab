@@ -8,7 +8,7 @@ This report is Markdown-typed and submitted in Spring 2025 by students [Nour Mos
 
 Time is very important to embedded systems. As engineers, we rely heavily on understanding the execution times of software instructions to ensure optimal system performance. One effective method we employ is measuring the execution time of each instruction, a technique crucial for developing efficient embedded software. To achieve this on our [Tiva C LaunchPad (TM4C123) microcontroller](Photos/TM4C123GXL.png), we begin by utilizing the ARM data sheet—as the TM4C123 microcontroller is powered by an ARM Cortex-M4 core (CPU)—which provides detailed specifications essential for calculating execution times accurately. Another more accurate method to measure time uses a logic analyzer or oscilloscope. In the simulator, we will use a simulated logic analyzer, and on the real board we will use an oscilloscope. To measure execution time, we cause rising and falling edges (LED toggles) on a digital output pin that occur at known places within the software execution. We can then use the logic analyzer or oscilloscope to measure the elapsed time between the rising and falling edges. 
 
-We start by interfacing a negative logic switch and a positive logic LED on GPIO ports. A negative logic switch, represented by PF4, registers a high signal (3.3V) when unpressed and a low signal (0V) when pressed. Conversely, a positive logic green LED, controlled via PF3, illuminates when the software outputs a high signal (3.3V) and remains off with a low signal (0V). The primary objective of this lab is threefold: first, to establish the switch at PF4 as an input and the LED at PF3 as an output with pull-up resistor (PUR) enabled. Second, to initiate the system with the LED initially off. Third, to implement a toggle mechanism for the LED every 100 milliseconds when the switch is pressed, ensuring it remains off when the switch is not pressed. This procedure will be iterated with delays of 100ms, 150ms, and 200ms to explore varying time intervals. You can get a snapshot of this program’s flow and logic by referring to the [flowchart](Photos/flowchart.png).
+In this lab, we will continue using the same Port F and pin configuration, but this time, we will program in the assembly language instead of C. We start by interfacing a negative logic switch and a positive logic LED on GPIO ports. A negative logic switch, represented by PF4, registers a high signal (3.3V) when unpressed and a low signal (0V) when pressed. Conversely, a positive logic green LED, controlled via PF3, illuminates when the software outputs a high signal (3.3V) and remains off with a low signal (0V). The primary objective of this lab is threefold: first, to establish the switch at PF4 as an input and the LED at PF3 as an output with pull-up resistor (PUR) enabled. Second, to initiate the system with the LED initially off. Third, to implement a toggle mechanism for the LED every 100 milliseconds when the switch is pressed, ensuring it remains off when the switch is not pressed. This procedure will be iterated with delays of 100ms, 150ms, and 200ms to explore varying time intervals. You can get a snapshot of this program’s flow and logic by referring to the [flowchart](Photos/flowchart.png).
 
 Note that, for the 100 ms trial, any delay between 80 ms and 120 ms is considered acceptable. To determine the tolerance range, we [subtract the minimum delay from the maximum delay](Photos/tolerance-range.png). Next, we calculate the tolerance percentage by [dividing the tolerance range by the target delay and multiplying by 100](Photos/tolerance-percentage.png). Therefore, the delay can vary by ±40% from the target delay of 100 ms. Similarly for [150 ms ±40%](Photos/40of150.png) (i.e. between [90 ms](Photos/150-40.png) and [210 ms](Photos/150+40.png)) and [200 ms ±40%](Photos/40of200.png) (i.e. between [120 ms](Photos/200-40.png) and [280 ms](Photos/200+40.png)).
 
@@ -16,22 +16,59 @@ In embedded systems, I/O (Input/Output) ports are used to interface with externa
 
 To estimate the time it takes for an operation to complete, we first need to understand the clock cycle of the microcontroller. For the TM4C123 microcontroller, with a default bus clock of 16 MHz ±1%, we know that each millisecond encompasses approximately 16,000 bus clock cycles. This understanding allows us to estimate how long it will take to execute specific tasks. For example, if we are working with a loop, we need to determine the number of cycles required to execute the loop once. Suppose it takes 4 cycles to execute the loop once; to achieve a 1 ms delay, we would need to execute the loop 4,000 times (because 4,000 cycles x 4 cycles per loop = 16,000 cycles, which is equivalent to 1 ms). In this estimation process, we focus primarily on the cycles spent inside the loop, neglecting the impact of instructions outside the loop, as their execution time is significantly smaller in comparison (4000 times less, in this case). This simplification makes it easier to calculate the required number of loop executions to achieve a precise time delay without being bogged down by the minor effects of external instructions.
 
+According to the Tiva board datasheet, our system bus runs at 16 MHz, and since the period of a clock cycle is the reciprocal of the clock frequency, we can calculate the clock period to be [62.5 ns](Photos/period.png) (i.e. the time required to complete one cycle on the board ). In our delay subroutine, the two main instructions involved are `SUBS` and `BNE`. The `SUBS` instruction, which decrements the loop counter, takes 1 cycle, while the `BNE` instruction, which checks whether to branch back, can take between 1 to 4 cycles (a branch takes 0 to 3 cycles to refill the pipeline), depending on the processor's state. Through simulation, we observed that `BNE` takes approximately 3 cycles per iteration, whereas on the actual hardware, it takes 2 cycles. This discrepancy affects our delay calculations with regard to designing a program to run accurately on the LaunchPad or in real life. 
+
+
 By engaging in these practical exercises, we aim not only to grasp essential programming structures in assembly (e.g. masking, toggling, if-then, subroutines, and looping) but also to refine our ability to estimate software execution times. Furthermore, we will utilize an oscilloscope—calibrating it vertically and horizontally—to precisely measure these time delays, fostering a comprehensive understanding of real-time system performance monitoring.
 
-## Toggling the Green LED with a Switch 1 (100ms Delay)
+## Toggling the Green LED using Switch 1 (100 ms Delay)
 
 <img src="Photos/100delay.gif" width="380" height="300" align="left">
 <img src="Photos/transparentpic.png" width="8" height="300" align="left">
 
-In this part of the lab, we will build upon the concepts learned in the previous lab; we will continue using the same Port F and pin configuration, but this time, we will program in the assembly language instead of C. The main focus will be on creating a subroutine for the delay function, allowing us to gain a deeper understanding of how to control and fine-tune the LED delay. Additionally, we will explore how assembly language offers precise control over timing and verify the delay using an oscilloscope. 
-
-According to the Tiva board datasheet, our system bus runs at `16 MHz`, meaning each clock cycle has a period of `62.5 ns`. This defines how long it takes to execute an instruction. In our delay subroutine, the two main instructions involved are `SUBS` and `BNE`. The `SUBS` instruction, which decrements the loop counter, takes `one cycle`, while the `BNE` instruction, which checks whether to branch back, can take between `0 to 3 cycles`, depending on the processor's state.
-
-Through simulation, we observed that `BNE takes approximately 3 cycles per iteration`, whereas on the actual hardware, `it takes 2 cycles`. This discrepancy affects our delay calculations. To achieve a `100 ms delay`, we first determine the total number of required cycles by `dividing 100 ms by 62.5 ns`, resulting in `1.6 million cycles`. In simulation, where each iteration takes `4 cycles (1 for SUBS and 3 for BNE)`, we need a loop count of `400,000`. However, on the actual board, where each iteration takes `3 cycles (1 for SUBS and 2 for BNE)`, we need a loop count of `533,333`. Therefore, when testing in simulation, we initialize our counter with `400,000`, while for real hardware execution, we use `533,333` to ensure an accurate `100 ms delay` for the green LED.
-
-<details>
-  <summary>Assembly Code on EK-TM4C123GXL</summary>
 <br>
+
+In simulation, where each iteration takes 4 cycles (1 for `SUBS` and 3 for `BNE`), the number of iterations is calculated by dividing the desired time delay by the time taken per iteration. Hence, to achieve a 100 ms delay in a period of 62.5 ns and 4 cycles in simulation, we calculate that we need [400,000 iterations](Photos/simulation100delay.png). Whereas, on the actual board, where each iteration takes 3 cycles (1 for `SUBS` and 2 for `BNE`), it would be [533,333 iterations](Photos/hardware100delay.png) on actual hardware. Knowing the number of iterations is crucial because it directly determines how long our delay loop will run to achieve a precise time delay. Since the execution time of each instruction varies between simulation and actual hardware, understanding the number of iterations ensures that our program behaves as expected.  
+<br><br>
+
+<p align="center">
+  <img src="Photos/launchpad100delaynotpressed.png" style="width: 49%; height: 300px;" title="Green LED is Off" /> <img src="Photos/launchpad100delaypressed.png" style="width: 49%; height: 300px;" title="Green LED is On" />
+</p>
+
+In the left picture, we can see that no switch is pressed on the LaunchPad, causing the green LED to remain off. The oscilloscope reading above confirms this, showing the switch signal at 1 (active low), which indicates that it is not pressed, while the LED signal remains at 0 (active high). The right picture shows that when the switch is pressed, its signal transitions to 0, indicating activation. As a result, we observe the LED toggling on and off. By analyzing the oscilloscope waveform, we can measure the time between consecutive ON states, which is approximately 0.100 seconds (100 ms), confirming the expected delay. However, slight variations in the timing occur due to the uncertainty of whether the `BNE` (branch if not equal) instruction takes the branch or not, meaning each iteration does not always take exactly 4 cycles. This variability accounts for the minor fluctuations in the measured delay.
+
+
+## Toggling the Green LED using Switch 1 (150 ms Delay)
+
+<img src="Photos/150delay.gif" width="380" height="300" align="left">
+<img src="Photos/transparentpic.png" width="8" height="300" align="left">
+
+
+In simulation, where each iteration takes 4 cycles (1 for `SUBS` and 3 for `BNE`), the number of iterations is calculated by dividing the desired time delay by the time taken per iteration. Hence, to achieve a 150 ms delay in a period of 62.5 ns and 4 cycles in simulation, we calculate that we need [600,000 iterations](Photos/simulation150delay.png). Whereas, on the actual board, where each iteration takes 3 cycles (1 for `SUBS` and 2 for `BNE`), it would be [800,000 iterations](Photos/hardware150delay.png) on actual hardware. In our experiment, the simulation provides the most accurate results since it operates in a controlled environment without external factors affecting execution time. However, on actual hardware, the program's timing may be less precise due to voltage drops across the board and bus delays. These real-world factors introduce slight variations in execution time, making hardware performance deviate from the idealized simulation results. Understanding these differences is key to accounting for hardware imperfections.
+<br><br>
+
+<p align="center">
+  <img src="Photos/launchpad150delaynotpressed.png" style="width: 49%; height: 300px;" title="Green LED is Off" /> <img src="Photos/launchpad150delaypressed.png" style="width: 49%; height: 300px;" title="Green LED is On" />
+</p>
+
+The screenshot to the left shows that when SW1 is not pressed on the LaunchPad, the green LED stays off until the SW1 is pressed (as shown in the right screenshot) then the green LED starts toggling between the on and off states as illustrated by the oscillations. In the simulation, d (delta) represents the difference between two cursor values, where 0.157s = 157ms. This delta is measured from the start to the end of the ON state or similarly for the OFF state. We measure the state duration to ensure accurate delay setting. To compare between the hardware and the simulation result, we can note the "Width" reading on the oscilloscope as it reads 113 ms compared to the rather accurate 157 ms. Nonetheless, 113 ms is within the tolerance range and is therefore deemed an acceptable result.
+
+
+## Toggling the Green LED using Switch 1 (200 ms Delay)
+
+<img src="Photos/200delay.gif" width="380" height="300" align="left">
+<img src="Photos/transparentpic.png" width="8" height="300" align="left">
+
+<br>
+
+In simulation, where each iteration takes 4 cycles (1 for `SUBS` and 3 for `BNE`), the number of iterations is calculated by dividing the desired time delay by the time taken per iteration. Hence, to achieve a 200 ms delay in a period of 62.5 ns and 4 cycles in simulation, we calculate that we need [800,000 iterations](Photos/simulation200delay.png). Whereas, on the actual board, where each iteration takes 3 cycles (1 for `SUBS` and 2 for `BNE`), it would be [1,066,666 iterations](Photos/hardware200delay.png) on actual hardware. In the oscilloscope, we focus on the width in the measurements. The width measurement actually represents the duration of a signal's HIGH (ON) or LOW (OFF) state, allowing us to verify the timing accuracy of our system. In the osci readings, the peaks and lows are in bright thick yellow and the vertical lines appear thin due to the measurement probe picking up noise.
+<br><br><br>
+
+<p align="center">
+  <img src="Photos/launchpad200delaynotpressed.png" style="width: 49%; height: 300px;" title="Green LED is Off" /> <img src="Photos/launchpad200delaypressed.png" style="width: 49%; height: 300px;" title="Green LED is On" />
+</p>
+
+Again, the left photo shows that, when no switch is pressed on the LaunchPad, the green LED remains off. The oscilloscope reading above confirms this, showing the switch signal at 1, which indicates that it is not pressed, while the LED signal remains at 0. When the switch is pressed in the right photo, its signal transitions to 0, indicating activation. As a result, we observe the LED toggling on and off through the signal's oscillations. In the simulation, the delta is measured to be 0.203 s compared to the Width in the oscilloscope which read 150 ms (i.e. LED is ON for 150 ms and OFF for 150 ms). Both results are valid as they are within the tolerance range from 120 ms to 280 ms.
 
 ```assembly
 // Here we just saving the base address + offset for each register i will use 
@@ -134,21 +171,6 @@ Next, we modify the necessary bits based on whether we need to set or clear spec
 
 Finally, we store the updated value back into the register using the `STR` instruction. This writes the modified data in R0 back to the memory address stored in `R1`, ensuring the configuration takes effect. By following this structured approach, we can effectively configure hardware registers in assembly language.
 
-</details>
-
-<details>
-  <summary>Texas Launchpad Simulation</summary>	
-<br>
-
-<p align="center">
-  <img src="Photos/launchpad100delaynotpressed.png" style="width: 49%; height: 300px;" title="Green LED is Off" /> <img src="Photos/launchpad100delaypressed.png" style="width: 49%; height: 300px;" title="Green LED is On" />
-</p>
-
-In the left image, we can see that no switch is pressed on the LaunchPad, causing the green LED to remain off. The oscilloscope reading above confirms this, showing the switch signal at 1 `(active low)`, which indicates that it is not pressed, while the LED signal remains at 0.
-
-In the right image, when the switch is pressed, its signal transitions to 0, indicating activation. As a result, we observe the LED toggling on and off. By analyzing the oscilloscope waveform, we can measure the time between consecutive ON states, which is approximately `0.100 seconds (100 ms)`, confirming the expected delay. However, slight variations in the timing occur due to the uncertainty of whether the BNE (branch if not equal) instruction takes the branch or not, meaning each iteration does not always take exactly 4 cycles. This variability accounts for the minor fluctuations in the measured delay.
-	
-</details>
 
 ## Conclusion
 
