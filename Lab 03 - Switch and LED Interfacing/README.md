@@ -39,7 +39,7 @@ A problem we encountered during testing our system was one where the LED blinked
 
 
 <p align="center">
-  <img src="Photos/voltage-measure.jpg" style="width: 49%; height: 280px;" title="Voltage measurement"/> <img src="Photos/current-measure.png" style="width: 49%; height: 280px;" title="Current measurement" />
+  <img src="Photos/voltage-measure.jpg" style="width: 49%; height: 220px;" title="Voltage measurement"/> <img src="Photos/current-measure.png" style="width: 49%; height: 220px;" title="Current measurement" />
 </p>
 
 In the left photo, we measure the voltage across both the LED and the 220Ω resistor together in a parallel circuit because it gives us the total voltage drop across the entire path through which the current flows. In a series circuit, the current flows through both the LED and the resistor, so the voltage drop across each component is related to the current and the resistance. By measuring the voltage across both, we account for the voltage drop across both the LED (which has a specific forward voltage) and the resistor (which drops voltage based on the current flowing through it). Measuring only across the LED or only across the resistor wouldn't provide an accurate understanding of the entire circuit’s behavior. The voltage across the LED alone would only show its forward voltage, and the voltage across the resistor alone would show the voltage drop caused by the current. By measuring across both components, we ensure we're seeing the complete voltage supply, helping us understand how the voltage is distributed across the components and ensuring the circuit functions as intended.
