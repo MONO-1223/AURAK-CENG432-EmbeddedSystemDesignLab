@@ -31,7 +31,7 @@ Equipment essential for this experiment includes the Pro's Kit MT-1280 31/2 digi
 
 To build circuits, we’ll use a solderless breadboard, also referred to as a protoboard. The holes in the protoboard are internally connected in a systematic manner, as shown in this [figure](Photos/breadboard.jpg). The long rows of of 50 holes along the outer sides of the protoboard are electrically connected. Some protoboards like the one in the figure have four long rows (two on each side), while others have just two long rows (one on each side). We refer to the long rows as power buses. If the protoboard has only two long rows (one on each side), we will connect one row to +3.3V and another row to the ground. If the protoboard has two long rows on each side, then two rows will be ground, one row will be +3.3V and the last row will be +5V (from VBUS). LEDs (Light Emitting Diodes) emit light when an electric current flows through them, but they have polarity, meaning the current must travel from the anode to the cathode for the LED to function. The anode is typically marked with an "A" or a "+" and is the longer lead, while the cathode is marked with a "K" or a "-" and is the shorter lead. If an LED is connected backward, it will not be damaged, but it simply will not light up.
 
-We can see in the demo above that when the switch was unpressed, the red LED was always on and when the switch got pressed the red LED started toggling on and off. This was also reflected accurately on the oscilloscope where the pink channel was connected to the switch and the yellow channel was connected to the resistor (rather than the LED because measuring across the resistor provides a clearer representation of the voltage changes at the microcontroller's output pin, avoiding potential inaccuracies caused by the LED's forward voltage drop). The [330Ω](Photos/resistor-color-code.png) resistor before the LED in this circuit serves as a current-limiting resistor to prevent excessive current from flowing through the LED. Without it, the LED could draw too much current, potentially causing overheating and permanent damage. Additionally, the microcontroller’s GPIO pin (PE0 in this case) has a current sourcing/sinking limit, and exceeding this limit could lead to overheating or even permanent damage to the pin. The resistor also helps maintain a consistent LED brightness, improving its lifespan. The 330Ω value is chosen based on Ohm’s Law, ensuring the current remains within a safe range. 
+We can see in the demo above that when the switch was unpressed, the red LED was always on and when the switch got pressed the red LED started toggling on and off. This was also reflected accurately on the oscilloscope where the pink channel was connected to the switch and the yellow channel was connected to the resistor (rather than the LED because measuring across the resistor provides a clearer representation of the voltage changes at the microcontroller's output pin, avoiding potential inaccuracies caused by the LED's forward voltage drop). The [330Ω](Photos/resistor-color-code.png) resistor before the LED in this circuit serves as a current-limiting resistor to prevent excessive current from flowing through the LED. Without it, the LED could draw too much current, potentially causing overheating and permanent damage. Additionally, the microcontroller’s GPIO pin (PE0 in this case) has a current sourcing/sinking limit, and exceeding this limit could lead to overheating or even permanent damage to the pin. The resistor also helps maintain a consistent LED brightness, improving its lifespan. The 330Ω value is chosen based on Ohm’s Law, ensuring the current remains within a safe range. For a clearer view of the connection, check this [schema](Photos/fritzing.png)
 
 A problem we encountered during testing our system was one where the LED blinked even when the switch wasn’t pressed and was affected by hand movements near the circuit. This was caused by a combination of loose connections and a potential issue with the Tiva board itself. Initially, the problem occurred because the wires were not fully inserted into the breadboard or the Tiva C microcontroller, resulting in intermittent connections. This could lead to floating inputs, where the microcontroller pin is configured as an input but isn't connected to a defined voltage level (either high when pressed or low when unpressed). A floating input is highly susceptible to electromagnetic interference and can randomly pick up noise from the surrounding environment, including electrical signals or the capacitance of a human hand. As a result, the microcontroller might misinterpret the input as an erratic high or low signal, causing unpredictable behavior such as the LED blinking unexpectedly. After ensuring the wires were properly connected, the problem persisted, which pointed to the possibility of a malfunction with the Tiva board. Changing the board resolved the issue, confirming that the original board had an internal fault, such as a defective GPIO pin, improper grounding, or another hardware-related problem causing the erratic behavior. We addressed the issue by making sure all wires were fully inserted into both the breadboard and the microcontroller, ensuring stable connections. Additionally, when the Tiva board was swapped, the problem stopped, confirming that the original board was faulty.
 
@@ -42,11 +42,27 @@ A problem we encountered during testing our system was one where the LED blinked
   <img src="Photos/voltage-measure.jpg" style="width: 49%; height: 280px;" title="Voltage measurement"/> <img src="Photos/voltage-measurement.png" style="width: 49%; height: 280px;" title="Current measurement" />
 </p>
 
-mohamed  
-of course, voltage is measured in parallel and current is measured in series  
-What operating point (voltage, current) exists when the LED is on?  
-Sketch the approximate current versus voltage curve of the LED.  
+In the left photo, we measure the voltage across both the LED and the 220Ω resistor together in a parallel circuit because it gives us the total voltage drop across the entire path through which the current flows. In a series circuit, the current flows through both the LED and the resistor, so the voltage drop across each component is related to the current and the resistance. By measuring the voltage across both, we account for the voltage drop across both the LED (which has a specific forward voltage) and the resistor (which drops voltage based on the current flowing through it). Measuring only across the LED or only across the resistor wouldn't provide an accurate understanding of the entire circuit’s behavior. The voltage across the LED alone would only show its forward voltage, and the voltage across the resistor alone would show the voltage drop caused by the current. By measuring across both components, we ensure we're seeing the complete voltage supply, helping us understand how the voltage is distributed across the components and ensuring the circuit functions as intended.
+
+In the right photo, we are creating an open gap between the resistor and the `PE0` pin, and then placing the multimeter in series to measure the current is done to accurately measure the current flowing through the circuit. When measuring current, it’s important to place the multimeter in series with the components (in this case, the resistor and LED) because the current is the same throughout a series circuit. By creating an open gap, you essentially allow the current to flow through the multimeter, which will then provide a precise reading of the current flowing through the circuit. This method ensures that the multimeter doesn’t interfere with the voltage measurements across individual components like the LED or resistor. Measuring current directly in this way is crucial to verify that the LED is drawing the expected amount of current and to ensure that the resistor is correctly limiting the current to protect the LED.
+
+
+<!-- comment 
+The 220Ω resistor is commonly used in LED circuits to limit the current flowing through the LED and prevent it from being damaged. 
+
+In the case of a 3.3V supply and a 2V LED forward voltage, a 220Ω resistor limits the current to approximately 5.9mA, which is well below the typical maximum rating of the LED, ensuring its longevity and safe operation. However, other resistor values can also be used, depending on the desired current for the LED. Resistor values in the range of 150Ω to 330Ω are commonly used and will allow the LED to function correctly without exceeding its maximum current rating. If the resistor value is too small (e.g., below 150Ω), the current might exceed the LED's safe operating range, while values larger than 330Ω will reduce the current too much, potentially making the LED too dim to be useful. Therefore, the resistor should be chosen to keep the current in a safe range that still allows the LED to emit light effectively. You can calculate the acceptable resistor range for your LED circuit using Ohm’s Law and the LED forward voltage using the formula $R = \frac{V_{\text{supply}} - V_{\text{LED}}}{I_{\text{LED}}}$
+The desired LED current depends on multiple factors, including the LED's electrical ratings, brightness requirements, and power efficiency. The LED manufacturer provides recommended operating current values in the datasheet.
+For normal operation, you want a current between 10mA and 20mA, which means resistor values should be between 65Ω and 130Ω.
+For lower brightness, up to 5mA, values can go up to 260Ω.
+For safety, staying within 150Ω to 330Ω is a common practice.
+
+
+Explaining why we got the voltage reading that we got  
+Explaining why we got the current reading that we got  
+What operating point (voltage, current) exists when the LED is on? from the datasheet  
 Explain how you use the resistor value to select the operating point.  
+Sketch the approximate current versus voltage curve of the LED. 
+--> 
 
 ## Keil Simulation
 
@@ -145,14 +161,14 @@ loop  BL   Delay					; ******************************
       LDR  R0,[R1]					;
       EOR  R0,R0,#0x01 					; toggle PE0
       STR  R0,[R1]     					; if switch pressed
-      B    loop						; ******************************
-												
-												
-Delay LDR  R0,=1230000					; Load immediate value 400,000 into R0 (loop counter) - (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
-wait  SUBS R0,#1    					; Subtract 1 from R0 and update flags (N, Z, C, V)
-      BNE  wait						; If R0 ? 0, branch back to 'wait' (repeat the loop)
-      BX   LR						; Return from subroutine
+      B    loop						; ******************************					
 
+					   		;bus = 80MHz, 12.5ns
+					   		;6 cycles in simulation, 3 on the real board
+Delay LDR  R0,=1653333 					;62ms/12.5ns/3 means basically (62/12.5)/(3/1) = (62*1)/(12.5*3)
+wait  SUBS R0,#1   	   				; Subtract 1 from R0 and update flags (N, Z, C, V)
+      BNE  wait 					; If R0 != 0, branch back to 'wait' (repeat the loop)
+      BX   LR 						; Return from subroutine
 
       ALIGN      					; Make sure the end of this section is aligned
       END        					; End of file
