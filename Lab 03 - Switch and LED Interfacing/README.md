@@ -76,7 +76,87 @@ The project consists of several main files organized in a specific hierarchy. Th
 To modify the code for a different LED flickering rate, target the `Delay LDR  R0,=1653333` line and adjust the value according to the formula $\frac{\text{Desired Delay Time}}{\text{Clock Period} \ \times \ \text{Cycles per Loop}}$. We have calculated the value [1,653,333](Photos/1mill.png) based on the 62 ms delay and the clock period of 12.5 ns with 3 cycles per loop in the simulation (change to 6 when in real life). So, for example, if we want to double the speed of the flickering rate, then we would have half the delay of 62 ms (i.e. 31 ms) and the value would be [826,666](Photos/800k.png) which would be the new delay for 16 Hz flicker. On the other hand, if we wanted to halve the speed of the flickering rate, then we would have to double the delay of 62 ms to 124 ms and the value would be [3,306,666](Photos/3mill.png) which would ne the new delay for 4 Hz flicker. All in all, to achieve slower toggling, you must increase the delay value whereas if you want to achieve faster blinking, you must decrease the delay value. Note that the values 12.5 ns and 3 didn't change because they are determined by the system clock and the execution time of each loop iteration in simulation.
 
 ```asm
-mohamed
+; Here we just saving the base address + offset for each register i will use 
+; Port E have the base address 0x40024000 (TM4C123 Data Sheet, 659)
+
+GPIO_PORTE_DATA_R       EQU   0x400243FC		; Base Address + 3FC
+GPIO_PORTE_DIR_R        EQU   0x40024400		; (TM4C123 Data Sheet, 633)
+GPIO_PORTE_AFSEL_R      EQU   0x40024420		; (TM4C123 Data Sheet, 671)
+GPIO_PORTE_DEN_R        EQU   0x4002451C		; (TM4C123 Data Sheet, 682)
+GPIO_PORTE_AMSEL_R      EQU   0x40024528		; (TM4C123 Data Sheet, 687)
+GPIO_PORTE_PCTL_R       EQU   0x4002452C		; (TM4C123 Data Sheet, 688)
+SYSCTL_RCGCGPIO_R       EQU   0x400FE608		; (TM4C123 Data Sheet, 340)
+	
+	
+       IMPORT  TExaS_Init					            	; Importing the TExaS_Init function
+       AREA    |.text|, CODE, READONLY, ALIGN=2 ; Defining the code section with alignment
+       THUMB									                  ; Indicating the use of the Thumb instruction set
+       EXPORT  Start					              		; Exporting the Start label for external use
+												
+Start										                      	;
+											                        	; TExaS_Init sets bus clock at 80 MHz
+      BL  TExaS_Init 						              	; voltmeter, scope on PD3
+												                        ; Activate clock for Port E
+      LDR R1, =SYSCTL_RCGCGPIO_R         	    	;
+      LDR R0, [R1]                  		      	;
+      ORR R0, R0, #0x10  					            	; Clock for E you need to set the Last bit (OR with the Base address)(0001 0000)
+      STR R0, [R1]                  		      	; (TM4C123 Data Sheet, 340)
+      NOP									                    	; NOP = No Opration
+      NOP                 					          	; Allow time to finish activating
+												                        ; No need to unlock PE1,PE0
+											                        	; Disable analog functionality
+      LDR R1, =GPIO_PORTE_AMSEL_R    			      ; (TM4C123 Data Sheet, 687)
+      LDR R0, [R1]                  			      ;
+      BIC R0, R0, #0x03  					            	; No analog functionality on PE1,PE0 (BIC stand for Bit Clear so We clear PE1,PE0)
+      STR R0, [R1]                    			    ;
+												                        ; Configure as GPIO
+      LDR R1, =GPIO_PORTE_PCTL_R   				      ; (TM4C123 Data Sheet, 688)
+      LDR R0, [R1]          				          	; 
+      LDR R2, =0x000000FF  					          	; Regular function on PE1,PE0
+      BIC R0, R0, R2               			       	;
+      STR R0, [R1]         					          	;
+												
+												                        ; Set direction register
+      LDR R1, =GPIO_PORTE_DIR_R      		      	; (TM4C123 Data Sheet, 633)
+      LDR R0, [R1]                   		      	;
+      ORR R0, R0, #0x01    					          	; Output on PE0 set bit PE0
+      BIC R0, R0, #0x02    				          		; Input on PE1 Clear bit PE 1
+      STR R0, [R1]      					            	;
+												                        ; Regular port function
+      LDR R1, =GPIO_PORTE_AFSEL_R   			      ; (TM4C123 Data Sheet, 671)
+      LDR R0, [R1]           					          ;
+      BIC R0, R0, #0x03  					            	; GPIO on PE1,PE0 set bit PE1 and PE0
+      STR R0, [R1]          				          	;
+											                        	; Enable digital port
+      LDR R1, =GPIO_PORTE_DEN_R    			      	; (TM4C123 Data Sheet, 682)
+      LDR R0, [R1]                				      ;
+      ORR R0, R0, #0x03      					          ; Enable data on PF2,PF4
+      STR R0, [R1]             					        ;
+      LDR R1,=GPIO_PORTE_DATA_R   			      	; pointer to PORTE
+set   LDR  R0,[R1]								              ;
+      ORR  R0,#01      							            ; LED on
+      STR  R0,[R1]								              ;
+      CPSIE  I    							              	; TExaS voltmeter, scope runs on interrupts
+
+loop  BL   Delay							                	; ******************************
+      LDR  R0,[R1]     					            		; R0 = PE1, 0x00,0x02
+      ANDS R0,#0x02   					            		;
+      BEQ  set         					            		; LED on if switch not pressed
+      LDR  R0,[R1]							              	;
+      EOR  R0,R0,#0x01 					            		; toggle PE0
+      STR  R0,[R1]     							            ; if switch pressed
+      B    loop									                ; ******************************
+												
+												
+Delay LDR  R0,=1230000							            ; Load immediate value 400,000 into R0 (loop counter) - (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
+wait  SUBS R0,#1    							              ; Subtract 1 from R0 and update flags (N, Z, C, V)
+      BNE  wait									                ; If R0 ? 0, branch back to 'wait' (repeat the loop)
+      BX   LR								                  	; Return from subroutine
+
+
+      ALIGN      							                	; Make sure the end of this section is aligned
+      END        							                	; End of file
+       
 ```
 
 ## Conclusion
