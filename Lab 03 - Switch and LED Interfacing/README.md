@@ -39,7 +39,7 @@ A problem we encountered during testing our system was one where the LED blinked
 
 
 <p align="center">
-  <img src="Photos/voltage-measure.jpg" style="width: 49%; height: 280px;" title="Voltage measurement"/> <img src="Photos/voltage-measurement.png" style="width: 49%; height: 280px;" title="Current measurement" />
+  <img src="Photos/voltage-measure.jpg" style="width: 49%; height: 280px;" title="Voltage measurement"/> <img src="Photos/current-measure.png" style="width: 49%; height: 280px;" title="Current measurement" />
 </p>
 
 In the left photo, we measure the voltage across both the LED and the 220Ω resistor together in a parallel circuit because it gives us the total voltage drop across the entire path through which the current flows. In a series circuit, the current flows through both the LED and the resistor, so the voltage drop across each component is related to the current and the resistance. By measuring the voltage across both, we account for the voltage drop across both the LED (which has a specific forward voltage) and the resistor (which drops voltage based on the current flowing through it). Measuring only across the LED or only across the resistor wouldn't provide an accurate understanding of the entire circuit’s behavior. The voltage across the LED alone would only show its forward voltage, and the voltage across the resistor alone would show the voltage drop caused by the current. By measuring across both components, we ensure we're seeing the complete voltage supply, helping us understand how the voltage is distributed across the components and ensuring the circuit functions as intended.
@@ -48,6 +48,8 @@ In the right photo, we are creating an open gap between the resistor and the `PE
 
 
 <!-- comment 
+explain how the oscilloscope probes are connected also
+
 The 220Ω resistor is commonly used in LED circuits to limit the current flowing through the LED and prevent it from being damaged. 
 
 In the case of a 3.3V supply and a 2V LED forward voltage, a 220Ω resistor limits the current to approximately 5.9mA, which is well below the typical maximum rating of the LED, ensuring its longevity and safe operation. However, other resistor values can also be used, depending on the desired current for the LED. Resistor values in the range of 150Ω to 330Ω are commonly used and will allow the LED to function correctly without exceeding its maximum current rating. If the resistor value is too small (e.g., below 150Ω), the current might exceed the LED's safe operating range, while values larger than 330Ω will reduce the current too much, potentially making the LED too dim to be useful. Therefore, the resistor should be chosen to keep the current in a safe range that still allows the LED to emit light effectively. You can calculate the acceptable resistor range for your LED circuit using Ohm’s Law and the LED forward voltage using the formula $R = \frac{V_{\text{supply}} - V_{\text{LED}}}{I_{\text{LED}}}$
