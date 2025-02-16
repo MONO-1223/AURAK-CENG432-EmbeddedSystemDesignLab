@@ -88,74 +88,74 @@ GPIO_PORTE_PCTL_R       EQU   0x4002452C		; (TM4C123 Data Sheet, 688)
 SYSCTL_RCGCGPIO_R       EQU   0x400FE608		; (TM4C123 Data Sheet, 340)
 	
 	
-       IMPORT  TExaS_Init					            	; Importing the TExaS_Init function
-       AREA    |.text|, CODE, READONLY, ALIGN=2 ; Defining the code section with alignment
-       THUMB									                  ; Indicating the use of the Thumb instruction set
-       EXPORT  Start					              		; Exporting the Start label for external use
+       IMPORT  TExaS_Init				; Importing the TExaS_Init function
+       AREA    |.text|, CODE, READONLY, ALIGN=2 	; Defining the code section with alignment
+       THUMB						; Indicating the use of the Thumb instruction set
+       EXPORT  Start					; Exporting the Start label for external use
 												
-Start										                      	;
-											                        	; TExaS_Init sets bus clock at 80 MHz
-      BL  TExaS_Init 						              	; voltmeter, scope on PD3
-												                        ; Activate clock for Port E
+Start							;
+							; TExaS_Init sets bus clock at 80 MHz
+      BL  TExaS_Init 					; voltmeter, scope on PD3
+							; Activate clock for Port E
       LDR R1, =SYSCTL_RCGCGPIO_R         	    	;
       LDR R0, [R1]                  		      	;
-      ORR R0, R0, #0x10  					            	; Clock for E you need to set the Last bit (OR with the Base address)(0001 0000)
+      ORR R0, R0, #0x10  				; Clock for E you need to set the Last bit (OR with the Base address)(0001 0000)
       STR R0, [R1]                  		      	; (TM4C123 Data Sheet, 340)
-      NOP									                    	; NOP = No Opration
-      NOP                 					          	; Allow time to finish activating
-												                        ; No need to unlock PE1,PE0
-											                        	; Disable analog functionality
-      LDR R1, =GPIO_PORTE_AMSEL_R    			      ; (TM4C123 Data Sheet, 687)
-      LDR R0, [R1]                  			      ;
-      BIC R0, R0, #0x03  					            	; No analog functionality on PE1,PE0 (BIC stand for Bit Clear so We clear PE1,PE0)
-      STR R0, [R1]                    			    ;
-												                        ; Configure as GPIO
-      LDR R1, =GPIO_PORTE_PCTL_R   				      ; (TM4C123 Data Sheet, 688)
-      LDR R0, [R1]          				          	; 
-      LDR R2, =0x000000FF  					          	; Regular function on PE1,PE0
-      BIC R0, R0, R2               			       	;
-      STR R0, [R1]         					          	;
+      NOP						; NOP = No Opration
+      NOP                 				; Allow time to finish activating
+							; No need to unlock PE1,PE0
+							; Disable analog functionality
+      LDR R1, =GPIO_PORTE_AMSEL_R    			; (TM4C123 Data Sheet, 687)
+      LDR R0, [R1]                  			;
+      BIC R0, R0, #0x03  				; No analog functionality on PE1,PE0 (BIC stand for Bit Clear so We clear PE1,PE0)
+      STR R0, [R1]                    			;
+							; Configure as GPIO
+      LDR R1, =GPIO_PORTE_PCTL_R   			; (TM4C123 Data Sheet, 688)
+      LDR R0, [R1]          				; 
+      LDR R2, =0x000000FF  				; Regular function on PE1,PE0
+      BIC R0, R0, R2               			;
+      STR R0, [R1]         				;
 												
-												                        ; Set direction register
+							; Set direction register
       LDR R1, =GPIO_PORTE_DIR_R      		      	; (TM4C123 Data Sheet, 633)
       LDR R0, [R1]                   		      	;
-      ORR R0, R0, #0x01    					          	; Output on PE0 set bit PE0
-      BIC R0, R0, #0x02    				          		; Input on PE1 Clear bit PE 1
-      STR R0, [R1]      					            	;
-												                        ; Regular port function
-      LDR R1, =GPIO_PORTE_AFSEL_R   			      ; (TM4C123 Data Sheet, 671)
-      LDR R0, [R1]           					          ;
-      BIC R0, R0, #0x03  					            	; GPIO on PE1,PE0 set bit PE1 and PE0
-      STR R0, [R1]          				          	;
-											                        	; Enable digital port
-      LDR R1, =GPIO_PORTE_DEN_R    			      	; (TM4C123 Data Sheet, 682)
-      LDR R0, [R1]                				      ;
-      ORR R0, R0, #0x03      					          ; Enable data on PF2,PF4
-      STR R0, [R1]             					        ;
-      LDR R1,=GPIO_PORTE_DATA_R   			      	; pointer to PORTE
-set   LDR  R0,[R1]								              ;
-      ORR  R0,#01      							            ; LED on
-      STR  R0,[R1]								              ;
-      CPSIE  I    							              	; TExaS voltmeter, scope runs on interrupts
+      ORR R0, R0, #0x01    				; Output on PE0 set bit PE0
+      BIC R0, R0, #0x02    				; Input on PE1 Clear bit PE 1
+      STR R0, [R1]      				;
+							; Regular port function
+      LDR R1, =GPIO_PORTE_AFSEL_R   			; (TM4C123 Data Sheet, 671)
+      LDR R0, [R1]           				;
+      BIC R0, R0, #0x03  				; GPIO on PE1,PE0 set bit PE1 and PE0
+      STR R0, [R1]          				;
+							; Enable digital port
+      LDR R1, =GPIO_PORTE_DEN_R    			; (TM4C123 Data Sheet, 682)
+      LDR R0, [R1]                			;
+      ORR R0, R0, #0x03      				; Enable data on PF2,PF4
+      STR R0, [R1]             				;
+      LDR R1,=GPIO_PORTE_DATA_R   			; pointer to PORTE
+set   LDR  R0,[R1]					;
+      ORR  R0,#01      					; LED on
+      STR  R0,[R1]					;
+      CPSIE  I    					; TExaS voltmeter, scope runs on interrupts
 
-loop  BL   Delay							                	; ******************************
-      LDR  R0,[R1]     					            		; R0 = PE1, 0x00,0x02
-      ANDS R0,#0x02   					            		;
-      BEQ  set         					            		; LED on if switch not pressed
-      LDR  R0,[R1]							              	;
-      EOR  R0,R0,#0x01 					            		; toggle PE0
-      STR  R0,[R1]     							            ; if switch pressed
-      B    loop									                ; ******************************
+loop  BL   Delay					; ******************************
+      LDR  R0,[R1]     					; R0 = PE1, 0x00,0x02
+      ANDS R0,#0x02   					;
+      BEQ  set         					; LED on if switch not pressed
+      LDR  R0,[R1]					;
+      EOR  R0,R0,#0x01 					; toggle PE0
+      STR  R0,[R1]     					; if switch pressed
+      B    loop						; ******************************
 												
 												
-Delay LDR  R0,=1230000							            ; Load immediate value 400,000 into R0 (loop counter) - (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
-wait  SUBS R0,#1    							              ; Subtract 1 from R0 and update flags (N, Z, C, V)
-      BNE  wait									                ; If R0 ? 0, branch back to 'wait' (repeat the loop)
-      BX   LR								                  	; Return from subroutine
+Delay LDR  R0,=1230000					; Load immediate value 400,000 into R0 (loop counter) - (THIS IS THE LINE YOU CHANGE THE VALUE IN FROM 400,000 TO 600,000 TO 800,000)
+wait  SUBS R0,#1    					; Subtract 1 from R0 and update flags (N, Z, C, V)
+      BNE  wait						; If R0 ? 0, branch back to 'wait' (repeat the loop)
+      BX   LR						; Return from subroutine
 
 
-      ALIGN      							                	; Make sure the end of this section is aligned
-      END        							                	; End of file
+      ALIGN      					; Make sure the end of this section is aligned
+      END        					; End of file
        
 ```
 
