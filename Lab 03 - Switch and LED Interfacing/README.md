@@ -58,12 +58,21 @@ For normal operation, you want a current between 10mA and 20mA, which means resi
 For lower brightness, up to 5mA, values can go up to 260Ω.
 For safety, staying within 150Ω to 330Ω is a common practice.
 
-
-Explaining why we got the voltage reading that we got  
-Explaining why we got the current reading that we got  
-What operating point (voltage, current) exists when the LED is on? from the datasheet  
-Explain how you use the resistor value to select the operating point.  
+Explaining why we got the voltage reading that we got  // ko
+Explaining why we got the current reading that we got  //ko
+What operating point (voltage, current) exists when the LED is on? from the datasheet //ko 
+Explain how you use the resistor value to select the operating point.  //ko
 Sketch the approximate current versus voltage curve of the LED. 
+what is the current that will burn the led
+
+
+lab findings:
+3.2v output pe0 if the led is on and the switch is unpressed
+the voltage drop across the led is 2 v
+the current at pin pe0 if the led is on 13.6mA
+9.3 mA current through fro, led anode to the ground
+with using 2.2kohm resistor the current is 0.65 mA
+
 --> 
 
 ## Keil Simulation
