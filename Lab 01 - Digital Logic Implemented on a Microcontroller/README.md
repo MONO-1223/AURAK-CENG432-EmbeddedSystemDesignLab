@@ -248,19 +248,18 @@ Keep in mind that switches are mechanical devices that can be either open or clo
 
 ```
 
-// anchor change with our gif or place on the left
-
-
-
-// anchor
 </details>
 
 <details>
   <summary>Texas Launchpad Simulation</summary>
 	<br>
 
+<p align="center">
+  <img src="Photos/Part3(01).png" style="width: 49%; height: 300px;" title="SW1 pressed, Blue LED on"/> <img src="Photos/Part3(10).png" style="width: 49%; height: 300px;" title="SW2 pressed, Red LED on"/>
+  <img src="Photos/Part3(On).png" style="width: 49%; height: 300px;"title="SW1 and SW2 pressed, Green LED on"/>  <img src="Photos/Part3(Off).png" style="width: 49%; height: 300px;" title="No SW pressed, no LED"/>
+</p>
 
-// anchor
+The screenshots taken on keil indicate an agreement between the simulation and the hardware implementation results confirming that our program is indeed running as expected. 
 
 <br>
 
