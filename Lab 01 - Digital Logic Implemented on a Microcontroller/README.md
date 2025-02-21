@@ -245,7 +245,72 @@ Keep in mind that switches are mechanical devices that can be either open or clo
 
 ``` C
 
+#include <stdint.h>
+#include "tm4c123gh6pm.h"
+#define GPIO_LOCK_KEY           0x4C4F434B  				// Unlocks the GPIO_CR register
+#define PF0       (*((volatile uint32_t *)0x40025004))
+#define PF4       (*((volatile uint32_t *)0x40025040))
+#define SWITCHES  (*((volatile uint32_t *)0x40025044))                  // on the right side of the Launchpad board
+#define SYSCTL_RCGC2_GPIOF      0x00000020  				// port F Clock Gating Control
+#define RED       0x02 							//PF1
+#define BLUE      0x04  						//PF2
+#define GREEN     0x08  						//PF3
 
+void PortF_Init(void){ 
+	volatile uint32_t delay;
+	SYSCTL_RCGC2_R= 0x00000020;       				// 1) F clock (activate clock for Port F)
+
+	//SYSCTL_RCGCGPIO_R |= 0x00000020;  				// 1) activate clock for Port F
+	// delay = SYSCTL_RCGCGPIO_R;        				// allow time for clock to start
+	GPIO_PORTF_LOCK_R = 0x4C4F434B;   				// 2) unlock GPIO Port F
+	GPIO_PORTF_CR_R = 0x1F;           				// allow changes to PF4-0 // 11111
+	// only PF0 needs to be unlocked, other bits can't be locked
+  
+	GPIO_PORTF_AMSEL_R = 0x00;        				// 3) disable analog on PF
+	GPIO_PORTF_PCTL_R = 0x00000000;   				// 4) PCTL GPIO on PF4-0
+	GPIO_PORTF_DIR_R = 0x0E;          				// 5) SWICHEs (input:0): PF4 (SW1),PF0(SW2) //LEDs (output:1): PF 1,2,3 //0x0E: 01110 
+	GPIO_PORTF_AFSEL_R = 0x00;        				// 6) disable alt funct on PF7-0
+	GPIO_PORTF_PUR_R = 0x11;          				// enable pull-up on PF0 and PF4 for the switches //0001 0001
+	GPIO_PORTF_DEN_R = 0xFF;          				// 7) enable digital I/O on PF4-0 // 0001 1111
+}
+
+uint32_t PortF_Input(void){     
+  return (GPIO_PORTF_DATA_R&0x11); 					//for read SW2 and for SW1 GPIO_PORTF_DATA_R&0x10
+}	// read PF4,PF0 inputs for the Switches
+
+
+void PortF_Output(uint32_t data){ 					// write PF3-PF2-PF1 outputs for the LEDs
+  GPIO_PORTF_DATA_R = data;      
+}
+
+void Delay(void);
+
+int main(void){
+	uint32_t status;
+	PortF_Init();              					// initialize PF0 and PF4 and make them inputs
+									// make PF3, PF2 and PF2 out (built-in LEDs)
+	while(1){
+		status = PortF_Input(); 				//read the Switches
+		switch(status){                    			// switches are negative logic on PF0 and PF4           
+			case 0x00: PortF_Output(GREEN);  
+			break;
+			case 0x01: PortF_Output(BLUE);  
+			break;
+			case 0x10: PortF_Output(RED);  
+			break; 
+			case 0x11: PortF_Output(0x00);  
+			break;   			
+		}
+	}
+}
+
+void Delay(void){
+	unsigned long  time;
+	time = 1600000;  // 0.1sec
+	while(time!=0){
+		time--;
+	}
+}
 ```
 
 </details>
@@ -259,9 +324,7 @@ Keep in mind that switches are mechanical devices that can be either open or clo
   <img src="Photos/Part3(On).png" style="width: 49%; height: 300px;"title="SW1 and SW2 pressed, Green LED on"/>  <img src="Photos/Part3(Off).png" style="width: 49%; height: 300px;" title="No SW pressed, no LED"/>
 </p>
 
-The screenshots taken on keil indicate an agreement between the simulation and the hardware implementation results confirming that our program is indeed running as expected. 
-
-<br>
+The screenshots taken on keil indicate an agreement between the simulation and the hardware implementation results confirming that our program is indeed running as expected. The Blue LED lights up when SW1 is pressed (upper left photo), while the Red LED lights up when SW2 is pressed (upper right photo). If both switches are pressed simultaneously, the Green LED turns on (lower left photo). When neither switch is pressed, all LEDs remain off (lower right photo).
 
 
 </details>
