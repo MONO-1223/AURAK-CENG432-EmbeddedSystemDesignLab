@@ -20,6 +20,8 @@ The required delay per toggle is 62.5 ms to achieve an 8 Hz blinking rate. If th
 
 Equipment essential for this experiment includes the [Pro's Kit MT-1280 31/2 digital multimeter CAT III 1000V](https://www.circuitspecialists.com/content/329997/MT-1280_manual.pdf?srsltid=AfmBOopVl2nIapGnuj3aocPx9iyjMpgbFWmxxg3hCIOpympyKfhuPNW7), [BK-Precision 2542C digital oscilloscope](https://datasheet.octopart.com/2542C-B%26K-Precision-datasheet-102877298.pdf), [red LED](https://www.mouser.com/datasheet/2/239/lite-on_lite-s-a0003806513-1-1737505.pdf), popular PE-74N breadboard, switch, male-male and female-male wires, complemented by the Keil uVision 5 IDE. 
 
+<br>
+
 > [!CAUTION]
 > Never insert or remove wires or chips while the power is on. Always turn off the power before making any hardware modifications to the system. Additionally, ensure that all signals connected to the TM4C123 remain within the 0V to +5V range, as voltages outside this range can cause damage to the microcontroller.
 
