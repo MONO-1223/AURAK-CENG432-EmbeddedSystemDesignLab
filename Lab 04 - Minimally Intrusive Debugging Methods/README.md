@@ -142,6 +142,39 @@ int main(void){
        
 ```
 
+## Estimating Execution Speed of Debug Capture
+
+To estimate the execution time of the debug capture section, we first consider the clock speed and instruction cycles of the `TM4C123GH6PM` microcontroller, which runs at `80 MHz` `(12.5 ns per cycle)`. The key operations involved in debug capture include reading the SysTick timer (`NVIC_ST_CURRENT_R`), reading GPIO input (`GPIO_PORTE_DATA_R`), performing bitwise operations (`<<`, `&`, `+`), and storing values in memory (`*DataPt = ...`, `*TimePt = ...`). Register reads and writes typically take `1–2 cycles`, while memory accesses take `2–3 cycles`, and bitwise operations require `1 cycle` each.  
+
+Breaking down the execution time, reading the `SysTick timer` and `GPIO data` takes approximately `25 ns each`. The bitwise operations and arithmetic operations add `12.5 ns per step`, while storing data into memory takes around `37.5 ns per write`. Additionally, pointer increments contribute another `25 ns`. Summing up all these operations, we estimate that one iteration of debug capture takes approximately `15 cycles`, translating to `~187.5 ns (~0.19 µs) per execution`.  
+
+Given that the loop contains a `62 ms delay function (`Delay()`)`, the impact of debug capture on overall execution speed is minimal. While the debug capture executes in less than `0.2 µs`, the overall loop iteration time is dominated by the delay, making the debug logging `non-intrusive in this context`. However, in real-time applications where precise timing is critical, this delay should be reconsidered.
+
+| **Operation**                  | **Estimated Time per Operation** | **Total Time per Iteration**   |
+|---------------------------------|----------------------------------|--------------------------------|
+| Reading SysTick Timer (`NVIC_ST_CURRENT_R`)  | 25 ns                           | 25 ns                          |
+| Reading GPIO Data (`GPIO_PORTE_DATA_R`)     | 25 ns                           | 25 ns                          |
+| Bitwise Operation (`<<`, `&`, `+`)           | 12.5 ns                         | 37.5 ns (for 3 operations)     |
+| Writing to Data and Time Buffers            | 37.5 ns                         | 75 ns (for 2 writes)           |
+| Pointer Increments                         | 25 ns                           | 25 ns                          |
+| **Total Estimated Time per Debug Capture Call** |                                  | **~187.5 ns (~0.19 µs)**        |
+
+### Estimating the Time Between Consecutive Calls of Debug Capture  
+
+The `Debug Capture` function in the code stores GPIO readings and timestamps in `DataBuffer` and `TimeBuffer` within the main loop. This process occurs under the condition that `DataPt` has not yet reached the end of the buffer. Each iteration of the loop performs several key operations, including reading the `SysTick timer`, reading `GPIO inputs`, performing `bitwise operations`, and writing data to memory. In an ideal scenario without delays, these operations take approximately `0.3 µs` per iteration, meaning the time between consecutive debug capture calls would be about `0.3 µs`. However, the presence of a `62 ms delay (`Delay()`)` within the loop significantly impacts execution timing. Instead of occurring at microsecond intervals, debug capture happens once every `62 ms`, making the delay the dominant factor in determining the time between consecutive calls.  
+
+In a best-case scenario where the delay function is removed, debug capture would execute at high speed, logging new data every `0.3 µs`. However, in the actual execution with the delay present, debug capture occurs only once per loop iteration, approximately every `62 ms`. This means that the delay function severely limits the real-time debugging capability of the system. If a faster data capture rate is required, optimizing or removing the delay function would be necessary to achieve higher logging speeds.
+
+## Overhead of The Debug Capture
+
+To calculate the **overhead** of the **Debug Capture** function, we can use the formula:  
+
+$$
+\text{Overhead} = \left( \frac{\text{Execution Time}}{\text{Time Between Calls}} \right) \times 100
+$$
+
+In this case, the `execution time` of the Debug Capture function is estimated at approximately `0.19 µs`, while the `time between consecutive calls` is dominated by the `62 ms delay` in the loop. Converting the units to consistent values (1 ms = 1000 µs), we find that the `time between calls` is `62,000 µs`. Substituting these values into the formula, we get an overhead of `0.03%`. This means that the `Debug Capture` function contributes only a small fraction of the overall execution time, with the vast majority of the time being spent in the delay function. Therefore, the overhead is negligible, and the `Debug Capture` function does not significantly impact the overall system performance in this scenario.
+
 ## Conclusion
 
 In this lab, we explored minimally intrusive debugging techniques. By extending the functionality of our Lab 3 code, we successfully integrated these debugging tools while maintaining the original structure. The heartbeat mechanism provided a visual confirmation of program execution via the on-chip blue LED, while the dump allowed for efficient data collection without relying on a debugger. Using both software and hardware tools, we measured signal timing through the oscilloscope, utilizing multiple measurement techniques to validate our results. The Keil simulation further reinforced our findings by allowing us to examine memory dumps and track the behavior of input/output signals.
@@ -157,6 +190,10 @@ There are several alternative methods for debugging embedded systems, each offer
 There could be many variations of this experiment's task to test our understanding of the program and circuit setup and what must be modified to achieve them. For example, instead of using a blue LED for the heartbeat indicator, we could have used a different color, such as red or green. Alternatively, we could have used an external LED for the heartbeat while reserving the built-in LED and switch for the toggling program. Another approach would have been to implement the entire program solely on the microcontroller without external components or, conversely, to rely entirely on external apparatus for better flexibility and modularity. Additionally, we could have adjusted the frequencies of both the heartbeat and toggling functions to observe their impact on performance and visibility. Another variation could have been inverting the functionality—making the LED toggle continuously by default and stopping the toggling to remain steadily on when the switch is pressed.
 
 All in all, the debugging techniques and verification methods explored in this experiment have significant industry applications, particularly in embedded systems development, firmware engineering, and safety-critical systems. In real-world applications, ensuring that a program is running correctly and efficiently is crucial in fields such as automotive, aerospace, medical devices, and industrial automation. For example, in automotive electronic control units (ECUs), heartbeat indicators and watchdog timers are used to detect and recover from software failures that could otherwise lead to system malfunctions. In medical devices like pacemakers or infusion pumps, real-time debugging and robust verification mechanisms are essential to guarantee continuous operation without errors that could jeopardize patient safety. Similarly, in industrial automation, microcontrollers and PLCs must be constantly monitored to ensure that production lines and robotic systems operate as intended, minimizing downtime and preventing costly failures. The use of serial debugging, logic analyzers, and on-chip debugging tools is common in these fields to diagnose issues and optimize performance. By applying the debugging and verification strategies learned in this experiment, engineers can develop more reliable and fault-tolerant systems, reducing maintenance costs and improving overall system resilience in various industry settings.
+
+## Calculation of the Flashing LED Period and Delay in the System
+
+The calculation of the flashing LED period involves understanding the difference between the `delay` and the `period`. In my code, the `delay` is set to `62 ms` in the `Delay()` function, which is the time the LED stays either on or off. However, the `period` refers to the complete cycle of the LED flashing, including both the "on" and "off" states. Since the LED is on for `62 ms` and off for another `62 ms`, the total `period` of the LED flashing is the sum of both these delays, which equals `124 ms`. So, the flashing LED period is `124 ms`, not `12.5 ns`, because the period includes both the on and off times in the cycle.
 
 
 ## Resources
