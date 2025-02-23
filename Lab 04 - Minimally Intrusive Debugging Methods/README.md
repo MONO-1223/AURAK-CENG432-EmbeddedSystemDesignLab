@@ -199,13 +199,19 @@ All in all, the debugging techniques and verification methods explored in this e
 
 ## Resources
 
-[1] Cortex-M4 Technical Reference Manual. (2009). <br> https://users.ece.utexas.edu/~valvano/EE345L/Labs/Fall2011/CortexM4_TRM_r0p1.pdf  
-[2] Online FlowChart & Diagrams Editor—Mermaid Live Editor. (n.d.). <br> https://mermaid.live  
-[3] Texas Instruments Incorporated. (2014). Tiva™ TM4C123GH6PM Microcontroller data sheet. Texas Instruments Incorporated. <br> https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf  
-[4] Texas Instruments Incorporated. (2013). Tiva™ C Series TM4C123G LaunchPad (User's Guide). Texas Instruments Incorporated. <br>  https://www.ti.com/lit/ug/spmu296/spmu296.pdf  
-[5] UT.6.01x C9 Arrays, Time, and Functional Debugging. (n.d.). YouTube. <br> http://www.youtube.com/playlist?list=PLyg2vmIzGxXHYEHQrxNxGcRg6vCTB20Ud  
-[6] Valvano, J. W. (2014). Embedded systems: Introduction to ARM® Cortex-M microcontrollers (5th ed., Vol. 1). Self-published. <br> https://users.ece.utexas.edu/~valvano/Volume1/E-Book/   
-[7] Fritzing. (n.d.). <br> https://fritzing.org/
+[1] Arm Compiler downloads index. (n.d.). <br> https://developer.arm.com/documentation/ka005198/latest  
+[2] Can I add Arm Compiler 5 to Keil MDK 5.37 (or newer)? (n.d.). <br> https://developer.arm.com/documentation/ka005073/latest/  
+[3] Cortex-M4 Technical Reference Manual. (2009). <br> https://users.ece.utexas.edu/~valvano/EE345L/Labs/Fall2011/CortexM4_TRM_r0p1.pdf  
+[4] Eng. Mahmoud Ismail (Director). (2022, September 8). Install ARM Compiler Version 5 on Keil MDK (Arabic). <br> https://www.youtube.com/watch?v=-567z2nKTdo  
+[5] Online FlowChart & Diagrams Editor—Mermaid Live Editor. (n.d.). <br> https://mermaid.live  
+[6] Solving missing ARM Compiler v5 in Keil Uvision – EmbeddedExpertIO. (n.d.). <br> https://blog.embeddedexpert.io/?p=1671  
+[7] Texas Instruments Incorporated. (2014). Tiva™ TM4C123GH6PM Microcontroller data sheet. Texas Instruments Incorporated. <br> https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf  
+[8] Texas Instruments Incorporated. (2013). Tiva™ C Series TM4C123G LaunchPad (User's Guide). Texas Instruments Incorporated. <br>  https://www.ti.com/lit/ug/spmu296/spmu296.pdf  
+[9] UT.6.01x C9 Arrays, Time, and Functional Debugging. (n.d.). YouTube. <br> http://www.youtube.com/playlist?list=PLyg2vmIzGxXHYEHQrxNxGcRg6vCTB20Ud  
+[10] Valvano, J. W. (2014). Embedded systems: Introduction to ARM® Cortex-M microcontrollers (5th ed., Vol. 1). Self-published. <br> https://users.ece.utexas.edu/~valvano/Volume1/E-Book/   
+[11] Fritzing. (n.d.). <br> https://fritzing.org/
+
+
 ‌
 <br>
 
