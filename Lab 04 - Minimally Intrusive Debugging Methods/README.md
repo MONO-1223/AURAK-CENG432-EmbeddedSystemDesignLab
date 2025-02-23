@@ -66,7 +66,79 @@ To implement a dump instrument for debugging, we will write two subroutines: `De
 
 
 ```c
+#include <stdint.h>													// Standard library for fixed-width integer types
+#include "tm4c123gh6pm.h"										// Header file specific to the Tiva C Series microcontroller
 
+uint32_t  DataBuffer[50];										// Array to store data readings
+uint32_t  TimeBuffer[50];										// Array to store time readings
+uint32_t  *DataPt;     											// Pointer to the DataBuffer array
+uint32_t  *TimePt;     											// Pointer to the TimeBuffer array
+
+void EnableInterrupts(void);								// Function prototype for enabling interrupts
+
+void Delay(void){														// Function to introduce a delay
+	unsigned long volatile time;							// Volatile variable to prevent compiler optimization
+  time = 452520; 														// Delay for approximately 62ms (based on 16 MHz clock)
+  while(time){
+   time--;
+  }
+}
+
+void Debug_Init(void){											// Function to initialize debugging by clearing DataBuffer and TimeBuffer
+int i;													
+ for(i=0;i<50;i++){													// Loop through all elements in the arrays
+    DataBuffer[i] = 0xFFFFFFFF;							// Initialize data buffer with a default value
+    TimeBuffer[i] = 0xFFFFFFFF;							// Initialize time buffer with a default value
+  }
+  DataPt = DataBuffer;											// Set DataPt pointer to the start of DataBuffer
+  TimePt = TimeBuffer;											// Set TimePt pointer to the start of TimeBuffer
+}
+
+int main(void){ 
+  TExaS_Init(); 														// Initialize TExaS (for debugging and scope functionality) (80 MHz)
+  Debug_Init();															// Initialize buffers for debugging
+	
+  SYSCTL_RCGCGPIO_R |= 0x30;								// Enable clock for GPIO Port E and Port F
+	
+  NVIC_ST_RELOAD_R= 0xFFFFFF; 							// Set SysTick Reload register to max value (24-bit)
+  NVIC_ST_CTRL_R =0x05;     								// Enable SysTick with system clock (bit 0 = 1, bit 2 = 1)
+  NVIC_ST_CURRENT_R =0;         						// Clear SysTick current value register
+	
+  GPIO_PORTE_DIR_R=0x01;										// Set PE0 (Red LED) as output
+  GPIO_PORTE_DEN_R=0x03; 										// Enable PE0 (LED) and PE1 (Switch) as digital functions
+	
+  GPIO_PORTF_DIR_R =0x04;  									// Set PF2 (Blue LED) as output
+  GPIO_PORTF_DEN_R= 0x04;  									// Enable PF2 (Blue LED) as digital function
+  GPIO_PORTE_DATA_R= 0x01; 									// Turn ON the Red LED initially (PE0 = 1)
+	
+  EnableInterrupts();												// Enable global interrupts
+
+  while(1){																	// Infinite loop for continuous execution
+		uint32_t in,out;						
+    if(DataPt < &DataBuffer[50]){						// Check if buffer is not full
+      *TimePt = NVIC_ST_CURRENT_R;					// Store current SysTick value in TimeBuffer
+			
+      in = (GPIO_PORTE_DATA_R&0x02)<<3;			// Read switch (PE1) input and shift left by 3 bits
+      out = GPIO_PORTE_DATA_R&0x01; 				// Read Red LED (PE0) state
+			
+      *DataPt = in+out;											// Store input and output data in DataBuffer
+			
+      TimePt++;															// Move to the next TimeBuffer location
+      DataPt++;															// Move to the next DataBuffer location
+    }
+		
+    GPIO_PORTF_DATA_R ^=0x04; 							// Toggle Blue LED (PF2) to blink for debugging 
+	
+    Delay();																// Call delay function
+
+    if(GPIO_PORTE_DATA_R&0x02){							// If switch (PE1) is pressed
+    GPIO_PORTE_DATA_R ^= 0x01;  						// Toggle Red LED (PE0)
+			
+    }else{
+      GPIO_PORTE_DATA_R |= 0x01; 						// Keep Red LED ON
+    }
+  }
+}
        
 ```
 
