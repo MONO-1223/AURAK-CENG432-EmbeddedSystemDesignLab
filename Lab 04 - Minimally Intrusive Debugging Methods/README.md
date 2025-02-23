@@ -150,14 +150,17 @@ Breaking down the execution time, reading the `SysTick timer` and `GPIO data` ta
 
 Given that the loop contains a `62 ms delay function (`Delay()`)`, the impact of debug capture on overall execution speed is minimal. While the debug capture executes in less than `0.2 µs`, the overall loop iteration time is dominated by the delay, making the debug logging `non-intrusive in this context`. However, in real-time applications where precise timing is critical, this delay should be reconsidered.
 
-| **Operation**                  | **Estimated Time per Operation** | **Total Time per Iteration**   |
-|---------------------------------|----------------------------------|--------------------------------|
-| Reading SysTick Timer (`NVIC_ST_CURRENT_R`)  | 25 ns                           | 25 ns                          |
-| Reading GPIO Data (`GPIO_PORTE_DATA_R`)     | 25 ns                           | 25 ns                          |
-| Bitwise Operation (`<<`, `&`, `+`)           | 12.5 ns                         | 37.5 ns (for 3 operations)     |
-| Writing to Data and Time Buffers            | 37.5 ns                         | 75 ns (for 2 writes)           |
-| Pointer Increments                         | 25 ns                           | 25 ns                          |
-| **Total Estimated Time per Debug Capture Call** |                                  | **~187.5 ns (~0.19 µs)**        |
+
+
+| **Operation**                                      | **Estimated Time per Operation** | **Cycles (80 MHz)**     | **Total Time per Iteration** |
+|----------------------------------------------------|----------------------------------|-------------------------|------------------------------|
+| Reading SysTick Timer (`NVIC_ST_CURRENT_R`)        | 25 ns                            | 2 cycles                | 25 ns                        |
+| Reading GPIO Data (`GPIO_PORTE_DATA_R`)           | 25 ns                            | 2 cycles                | 25 ns                        |
+| Bitwise Operation (`<<`, `&`, `+`)                 | 12.5 ns                          | 1 cycle (per operation) | 37.5 ns (for 3 operations)   |
+| Writing to Data Buffer (`*DataPt = in + out`)      | 37.5 ns                          | 3 cycles                | 75 ns (for 2 writes)         |
+| Writing to Time Buffer (`*TimePt = NVIC_ST_CURRENT_R`) | 37.5 ns                        | 3 cycles                | 75 ns                        |
+| Pointer Increments (`DataPt++`, `TimePt++`)        | 25 ns                            | 2 cycles                | 25 ns                        |
+| **Total Estimated Time per Debug Capture Call**    |                                  |                         | **~237.5 ns (~0.24 µs)**     |
 
 ### Estimating the Time Between Consecutive Calls of Debug Capture  
 
@@ -167,13 +170,13 @@ In a best-case scenario where the delay function is removed, debug capture would
 
 ## Overhead of The Debug Capture
 
-To calculate the **overhead** of the **Debug Capture** function, we can use the formula:  
+To calculate the `overhead` of the `Debug Capture` function, we use the formula:
 
 $$
 \text{Overhead} = \left( \frac{\text{Execution Time}}{\text{Time Between Calls}} \right) \times 100
 $$
 
-In this case, the `execution time` of the Debug Capture function is estimated at approximately `0.19 µs`, while the `time between consecutive calls` is dominated by the `62 ms delay` in the loop. Converting the units to consistent values (1 ms = 1000 µs), we find that the `time between calls` is `62,000 µs`. Substituting these values into the formula, we get an overhead of `0.03%`. This means that the `Debug Capture` function contributes only a small fraction of the overall execution time, with the vast majority of the time being spent in the delay function. Therefore, the overhead is negligible, and the `Debug Capture` function does not significantly impact the overall system performance in this scenario.
+The execution time of the `Debug Capture` function is approximately `237.5 ns` (~`0.24 µs`), and the time between consecutive calls is primarily influenced by the `62 ms delay` in the loop. To make the units consistent, we convert `1 ms = 1000 µs`, resulting in a `time between calls` of `62,000 µs`. When we substitute these values into the formula, we get an overhead of `0.000387%`. This indicates that the `Debug Capture` function contributes only a very small portion of the total execution time, with the majority of the time being spent in the delay function. Therefore, the `overhead` of the `Debug Capture` function is negligible, and it does not significantly impact the overall performance of the system. As a result, the function is considered to be `non-intrusive` in this context.
 
 ## Conclusion
 
