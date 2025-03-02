@@ -24,6 +24,9 @@ For a clearer view of the practical connection, check this [schema](Photos/fritz
 
 // mohamed
 
+Note how we connect the oscilloscope's probes at the end of the switch (going into the board) but the beginning of the LED (coming out of the board).
+
+
 ## Keil Simulation
 
 <p align="center">
