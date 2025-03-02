@@ -60,84 +60,83 @@ When the C compiler aligns objects in memory, it places variables at memory addr
 
 ```c
 #include <stdint.h>
-#include "PLL.h"        																							// Header file for configuring the system clock
-#include "SysTick.h"    																							// Header file for configuring the SysTick timer
+#include "PLL.h"        						// Header file for configuring the system clock
+#include "SysTick.h"    						// Header file for configuring the SysTick timer
 
-																																			// Define memory-mapped register addresses for controlling GPIOs
-#define LIGHT                   (*((volatile uint32_t *)0x400050FC))  // PB5-PB0 output (traffic lights)
-#define GPIO_PORTB_DIR_R        (*((volatile uint32_t *)0x40005400))  // Direction register for Port B
-#define GPIO_PORTB_AFSEL_R      (*((volatile uint32_t *)0x40005420))  // Alternate function select for Port B
-#define GPIO_PORTB_DEN_R        (*((volatile uint32_t *)0x4000551C))  // Digital enable for Port B
-#define GPIO_PORTB_AMSEL_R      (*((volatile uint32_t *)0x40005528))  // Analog mode select for Port B
-#define GPIO_PORTB_PCTL_R       (*((volatile uint32_t *)0x4000552C))  // Port control register for Port B
+									// Define memory-mapped register addresses for controlling GPIOs
+#define LIGHT                   (*((volatile uint32_t *)0x400050FC))  	// PB5-PB0 output (traffic lights)
+#define GPIO_PORTB_DIR_R        (*((volatile uint32_t *)0x40005400))  	// Direction register for Port B
+#define GPIO_PORTB_AFSEL_R      (*((volatile uint32_t *)0x40005420))  	// Alternate function select for Port B
+#define GPIO_PORTB_DEN_R        (*((volatile uint32_t *)0x4000551C))  	// Digital enable for Port B
+#define GPIO_PORTB_AMSEL_R      (*((volatile uint32_t *)0x40005528))  	// Analog mode select for Port B
+#define GPIO_PORTB_PCTL_R       (*((volatile uint32_t *)0x4000552C))  	// Port control register for Port B
 
-#define SENSOR                  (*((volatile uint32_t *)0x4002400C))  // PE1-PE0 input (car detectors)
-#define GPIO_PORTE_DIR_R        (*((volatile uint32_t *)0x40024400))  // Direction register for Port E
-#define GPIO_PORTE_AFSEL_R      (*((volatile uint32_t *)0x40024420))  // Alternate function select for Port E
-#define GPIO_PORTE_DEN_R        (*((volatile uint32_t *)0x4002451C))  // Digital enable for Port E
-#define GPIO_PORTE_AMSEL_R      (*((volatile uint32_t *)0x40024528))  // Analog mode select for Port E
-#define GPIO_PORTE_PCTL_R       (*((volatile uint32_t *)0x4002452C))  // Port control register for Port E
+#define SENSOR                  (*((volatile uint32_t *)0x4002400C))  	// PE1-PE0 input (car detectors)
+#define GPIO_PORTE_DIR_R        (*((volatile uint32_t *)0x40024400))  	// Direction register for Port E
+#define GPIO_PORTE_AFSEL_R      (*((volatile uint32_t *)0x40024420))  	// Alternate function select for Port E
+#define GPIO_PORTE_DEN_R        (*((volatile uint32_t *)0x4002451C))  	// Digital enable for Port E
+#define GPIO_PORTE_AMSEL_R      (*((volatile uint32_t *)0x40024528))  	// Analog mode select for Port E
+#define GPIO_PORTE_PCTL_R       (*((volatile uint32_t *)0x4002452C))  	// Port control register for Port E
 
-#define SYSCTL_RCGCGPIO_R       (*((volatile uint32_t *)0x400FE608))  // Clock gating control for GPIO
-#define SYSCTL_PRGPIO_R         (*((volatile uint32_t *)0x400FEA08))  // GPIO peripheral ready status
+#define SYSCTL_RCGCGPIO_R       (*((volatile uint32_t *)0x400FE608))  	// Clock gating control for GPIO
+#define SYSCTL_PRGPIO_R         (*((volatile uint32_t *)0x400FEA08))  	// GPIO peripheral ready status
 
-																																			// Define the finite state machine (FSM) structure
+									// Define the finite state machine (FSM) structure
 struct State {
-  uint32_t Out;      																									// 6-bit output representing the traffic light state
-  uint32_t Time;     																									// Time delay in 10ms units
-  uint8_t Next[4];   																									// Next state transitions based on 2-bit sensor input
+  uint32_t Out;      							// 6-bit output representing the traffic light state
+  uint32_t Time;     							// Time delay in 10ms units
+  uint8_t Next[4];   							// Next state transitions based on 2-bit sensor input
 };
 
 typedef const struct State STyp;
 
-																																			// Define state names for better readability
-#define goN   0  																											// Green for north, Red for east
-#define waitN 1  																											// Yellow for north, Red for east
-#define goE   2  																											// Green for east, Red for north
-#define waitE 3  																											// Yellow for east, Red for north
-
-																																			// Define FSM states
+																																				// Define state names for better readability
+#define goN   0  							// Green for north, Red for east
+#define waitN 1  							// Yellow for north, Red for east
+#define goE   2  							// Green for east, Red for north
+#define waitE 3  							// Yellow for east, Red for north
+									// Define FSM states
 STyp FSM[4]={
-																																			//  { Out, Time,   Next states based on sensor input [00, 01, 10, 11] }
-  {0x21, 30, {goN, waitN, goN, waitN}}, 															// goN state: Green North, Red East
-  {0x22,  5, {goE, goE, goE, goE}},     															// waitN state: Yellow North, Red East
-  {0x0C, 30, {goE, goE, waitE, waitE}}, 															// goE state: Green East, Red North
-  {0x14,  5, {goN, goN, goN, goN}}      															// waitE state: Yellow East, Red North
+																																				//  { Out, Time,   Next states based on sensor input [00, 01, 10, 11] }
+  {0x21, 30, {goN, waitN, goN, waitN}}, 				// goN state: Green North, Red East
+  {0x22,  5, {goE, goE, goE, goE}},     				// waitN state: Yellow North, Red East
+  {0x0C, 30, {goE, goE, waitE, waitE}}, 				// goE state: Green East, Red North
+  {0x14,  5, {goN, goN, goN, goN}}      				// waitE state: Yellow East, Red North
 };
 
 int main(void){
-  uint8_t n;         																									// Variable to store the current state
-  uint32_t Input;    																									// Variable to store sensor input
+  uint8_t n;         							// Variable to store the current state
+  uint32_t Input;    							// Variable to store sensor input
   
-  PLL_Init(Bus80MHz);               																	// Initialize the system clock to 80 MHz
-  SysTick_Init();                   																	// Initialize SysTick timer for delays
+  PLL_Init(Bus80MHz);               					// Initialize the system clock to 80 MHz
+  SysTick_Init();                   					// Initialize SysTick timer for delays
   
-  SYSCTL_RCGCGPIO_R |= 0x12;        																	// Enable clock for Port E (bit 4) and Port B (bit 1)
+  SYSCTL_RCGCGPIO_R |= 0x12;        					// Enable clock for Port E (bit 4) and Port B (bit 1)
   
-																																			// Wait until the GPIO ports are ready
+																																				// Wait until the GPIO ports are ready
   while((SYSCTL_PRGPIO_R & 0x12) == 0){};
 
-																																			// Configure Port B (PB5-PB0) as output (traffic lights)
-  GPIO_PORTB_DIR_R |= 0x3F;         																	// Set PB5-PB0 as outputs
-  GPIO_PORTB_AFSEL_R &= ~0x3F;      																	// Disable alternate functions for PB5-PB0
-  GPIO_PORTB_DEN_R |= 0x3F;         																	// Enable digital functionality for PB5-PB0
-  GPIO_PORTB_PCTL_R &= ~0x00FFFFFF; 																	// Configure PB5-PB0 as GPIO
-  GPIO_PORTB_AMSEL_R &= ~0x3F;      																	// Disable analog functionality on PB5-PB0
+																																				// Configure Port B (PB5-PB0) as output (traffic lights)
+  GPIO_PORTB_DIR_R |= 0x3F;         					// Set PB5-PB0 as outputs
+  GPIO_PORTB_AFSEL_R &= ~0x3F;      					// Disable alternate functions for PB5-PB0
+  GPIO_PORTB_DEN_R |= 0x3F;         					// Enable digital functionality for PB5-PB0
+  GPIO_PORTB_PCTL_R &= ~0x00FFFFFF; 					// Configure PB5-PB0 as GPIO
+  GPIO_PORTB_AMSEL_R &= ~0x3F;      					// Disable analog functionality on PB5-PB0
 
-																																			// Configure Port E (PE1-PE0) as input (car detectors)
-  GPIO_PORTE_DIR_R &= ~0x03;        																	// Set PE1-PE0 as inputs
-  GPIO_PORTE_AFSEL_R &= ~0x03;      																	// Disable alternate functions for PE1-PE0
-  GPIO_PORTE_DEN_R |= 0x03;         																	// Enable digital functionality for PE1-PE0
-  GPIO_PORTE_PCTL_R &= 0xFFFFFF00;  																	// Configure PE1-PE0 as GPIO
-  GPIO_PORTE_AMSEL_R &= ~0x03;      																	// Disable analog functionality on PE1-PE0
+																																				// Configure Port E (PE1-PE0) as input (car detectors)
+  GPIO_PORTE_DIR_R &= ~0x03;        					// Set PE1-PE0 as inputs
+  GPIO_PORTE_AFSEL_R &= ~0x03;      					// Disable alternate functions for PE1-PE0
+  GPIO_PORTE_DEN_R |= 0x03;         					// Enable digital functionality for PE1-PE0
+  GPIO_PORTE_PCTL_R &= 0xFFFFFF00;  					// Configure PE1-PE0 as GPIO
+  GPIO_PORTE_AMSEL_R &= ~0x03;      					// Disable analog functionality on PE1-PE0
 
-  n = goN;                          																	// Start in the goN state (Green for North, Red for East)
+  n = goN;                          					// Start in the goN state (Green for North, Red for East)
 
   while(1){
-    LIGHT = FSM[n].Out;             																	// Set traffic lights based on current FSM state
-    SysTick_Wait10ms(FSM[n].Time);  																	// Wait for the specified time (FSM[n].Time * 10ms)
-    Input = SENSOR;                 																	// Read sensor input (PE1-PE0) to determine car presence
-    n = FSM[n].Next[Input];         																	// Transition to the next state based on sensor input
+    LIGHT = FSM[n].Out;             					// Set traffic lights based on current FSM state
+    SysTick_Wait10ms(FSM[n].Time);  					// Wait for the specified time (FSM[n].Time * 10ms)
+    Input = SENSOR;                 					// Read sensor input (PE1-PE0) to determine car presence
+    n = FSM[n].Next[Input];         					// Transition to the next state based on sensor input
   }
 }
 
