@@ -95,6 +95,9 @@ int main(void){
         } else {                            // if the button is pressed
             PortF_Output(GREEN);            // turn on green LED
         }
+
+   			// remember that the simulation and the hardware work in opposite logic for this program so you must switch the content
+				// inside the if else statements
     }
 }
 ```
