@@ -2,6 +2,31 @@
   <img src="Photos/practice.gif"/>
 </p>
 
+In this task, we ... using the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png). 
+
+## Hardware Implementation
+
+<p align="center">
+  <img src="Photos/demo.gif" style="width: 1000%;"/>
+</p>
+
+// mohamed 
+
+For a clearer view of the practical connection, check this [schema](Photos/fritzing.png). 
+
+
+## Keil Simulation
+
+<p align="center">
+  <img src="Photos/simulation.png" style="width: 200%;"/>
+</p>
+
+
+
+## C Code on EK-TM4C123GXL
+
+The system starts 
+
 ``` C
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
