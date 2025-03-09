@@ -8,12 +8,10 @@ In this task, we use the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.pn
 ## Hardware Implementation
 
 <p align="center">
-  <img src="Photos/demo.gif" style="width: 1000%;"/>
+  <img src="Photos/demo.gif" style="width: 150%; height: 300px; "/> &nbsp;&nbsp; <img src="Photos/fritzing.png" style="width: 66%; height: 300px;" />
 </p>
 
 // mohamed 
-
-For a clearer view of the practical connection, check this [schema](Photos/fritzing.png). 
 
 > [!CAUTION]
 > When the pull-up resistor (PUR) is enabled on a switch, the input pin is internally connected to 3.3V through a weak resistor. In this configuration, the system interprets the input as logic high (1) when the switch is not pressed. For the switch press to be detected, the input must be pulled to logic low (0), which happens when the switch is connected to ground (GND). If the switch is instead connected to 3.3V, pressing it will not cause a voltage change, meaning the system will always read it as high and will not register the press event. Hence, when the pull-up resistor (PUR) is enabled, the pin is internally connected to 3.3V, so in hardware, the switch only needs to be connected to ground (GND). 
