@@ -7,13 +7,10 @@ In this task, we use the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.pn
 ## Hardware Implementation
 
 <p align="center">
-  <img src="Photos/demo.gif" style="width: 1000%;"/>
+  <img src="Photos/demo.gif" style="width: 150%; height: 300px; "/> &nbsp;&nbsp; <img src="Photos/fritzing.png" style="width: 66%; height: 300px;" />
 </p>
 
 // mohamed 
-
-For a clearer view of the practical connection, check this [schema](Photos/fritzing.png). 
-
 
 ## Keil Simulation
 
