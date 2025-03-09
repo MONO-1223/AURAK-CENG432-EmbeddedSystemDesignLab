@@ -2,7 +2,7 @@
   <img src="Photos/practice.gif"/>
 </p>
 
-In this task, we ... using the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png). 
+In this task, we use the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png) where a pushbutton is connected to PE3 as an input, and three external LEDs are connected to PF1 (Red), PF2 (Blue), and PF3 (Green) as outputs. The system operates such that when the pushbutton is pressed and held, the Red and Blue LEDs toggle together. When the button is released, the Green LED turns on. This configuration ensures real-time responsiveness to user input, allowing dynamic LED control based on the button state.
 
 ## Hardware Implementation
 
@@ -21,11 +21,16 @@ For a clearer view of the practical connection, check this [schema](Photos/fritz
   <img src="Photos/simulation.png" style="width: 200%;"/>
 </p>
 
-
+// moahmed
 
 ## C Code on EK-TM4C123GXL
 
-The system starts 
+The initialization process is handled by two functions: `PortF_Init` and `PortE_Init`. The `PortF_Init` function configures Port F for output operation by enabling the clock, unlocking the GPIO_CR register, and setting PF1, PF2, and PF3 as digital output pins. Analog functionality is disabled, and alternative functions are turned off to ensure that the port is used solely for controlling LEDs. Similarly, `PortE_Init` configures PE3 as an input by enabling the clock for Port E, disabling analog functionality, and setting PE3 as a digital input.
+
+The main loop continuously monitors the pushbutton state using `PortE_Input()`. When the button is not pressed (PE3 reads 0x00), the program toggles the red and blue LEDs on and off with a delay in between. The delay function, `Delay()`, is used to introduce a short pause, preventing rapid toggling and addressing switch debouncing. On the other hand, when the button is pressed (PE3 reads 0x08), the red and blue LEDs remain off, and the green LED is turned on instead.
+
+The `PortF_Output` function is responsible for updating the LED outputs based on the given data value. It writes the desired LED state to PF1, PF2, and PF3, allowing dynamic control of the LEDs. The Delay function ensures that toggling occurs at a visible rate by introducing a time delay of 0.1 seconds. This prevents the LEDs from switching states too quickly, which could make them appear as if they are continuously on.
+
 ``` c
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
