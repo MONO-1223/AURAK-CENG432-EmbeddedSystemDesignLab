@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Photos/practice.gif"/>
+</p>
+
 ``` C
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
