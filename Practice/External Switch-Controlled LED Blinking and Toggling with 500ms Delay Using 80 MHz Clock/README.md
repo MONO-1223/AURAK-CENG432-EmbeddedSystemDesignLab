@@ -2,7 +2,8 @@
   <img src="Photos/practice.gif"/>
 </p>
 
-In this task, we ... using the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png). 
+In this task, we use the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png) to create a program that runs on an 80 MHz clock and includes a 500 ms delay function. Two input switches on PE2 and PE3, with pull-up resistors (PUR) enabled, control three output LEDs on PF1 (red), PF2 (blue), and PF3 (green). When PE2 is pressed, the blue and red LEDs blink three times with a 500 ms delay. When PE3 is pressed, the green, blue, and red LEDs blink sequentially for two cycles, each with a 500 ms delay. If neither switch is pressed, the blue and green LEDs remain off while the red LED toggles continuously.
+
 
 ## Hardware Implementation
 
@@ -14,6 +15,9 @@ In this task, we ... using the [Tiva C (TM4C123) microcontroller](Photos/TM4C123
 
 For a clearer view of the practical connection, check this [schema](Photos/fritzing.png). 
 
+> [!CAUTION]
+> When the pull-up resistor (PUR) is enabled on a switch, the input pin is internally connected to 3.3V through a weak resistor. In this configuration, the system interprets the input as logic high (1) when the switch is not pressed. For the switch press to be detected, the input must be pulled to logic low (0), which happens when the switch is connected to ground (GND). If the switch is instead connected to 3.3V, pressing it will not cause a voltage change, meaning the system will always read it as high and will not register the press event. Hence, when the pull-up resistor (PUR) is enabled, the pin is internally connected to 3.3V, so in hardware, the switch only needs to be connected to ground (GND). 
+
 
 ## Keil Simulation
 
@@ -21,11 +25,17 @@ For a clearer view of the practical connection, check this [schema](Photos/fritz
   <img src="Photos/simulation.png" style="width: 200%;"/>
 </p>
 
-
+// Mohamed  
+how the delay was calculated
 
 ## C Code on EK-TM4C123GXL
 
-The system starts 
+This program operates based on inputs from Port E (PE2 and PE3), which are configured as switches, and controls Port F (PF1, PF2, PF3), which are connected to LEDs. The microcontroller runs at 80 MHz, and the program first enables the clock for both Port E and Port F. PE2 and PE3 are set as inputs with pull-up resistors, ensuring they default to high (1) when not pressed. Port F’s PF1 (Red), PF2 (Blue), and PF3 (Green) LEDs are set as outputs.
+
+In the main loop, the program continuously reads the state of PE2 and PE3 using the PortE_Input() function, which masks the relevant bits (0x0C). Based on the switch state, it executes different functions to control the LEDs. If PE2 is pressed, `PortF_Output_PE2_Pressed()` runs, blinking Green, Blue, and Red LEDs sequentially for two cycles. If PE3 is pressed, `PortF_Output_PE3_Pressed()` runs, toggling Red and Blue LEDs together three times. If neither button is pressed, `PortF_Output_Both_Not_Pressed()` runs, making the Red LED blink continuously.
+
+A `Delay()` function is implemented to introduce a 500 ms pause by iterating a loop approximately 8 million times. The code also accounts for hardware variations: in real hardware, the case for "no button pressed" is 0x0C, while in simulation, it is 0x00. This ensures that the LED output accurately reflects the switch states, making it a practical embedded system for real-time input-driven LED control.
+
 
 ``` C
 #include <stdint.h>
