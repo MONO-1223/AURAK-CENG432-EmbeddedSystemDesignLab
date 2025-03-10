@@ -11,13 +11,13 @@ Keil µVision is an integrated development environment (IDE) designed for embedd
 
 
 
-https://github.com/user-attachments/assets/39e8e90d-8927-4d75-bf82-8e5a8187e307
+https://github.com/user-attachments/assets/c9d5f989-d91f-4547-a131-f1b9fb92e636
 
 https://github.com/user-attachments/assets/8da73f4d-5ba0-47d5-81d8-b0714f3a2afa
 
 https://github.com/user-attachments/assets/ab959cd9-be3b-4bf5-8d83-121fc11da95f
 
-
+To run the codes on your board, download and extract the RAR file from each experiment's subdirectory, then open the .uvprojx file in Keil uVision5. Additionally, when using Keil uVision, it's important to keep file paths short to prevent unexpected errors. If a project is stored in a deeply nested directory or has excessively long file names, Keil may fail to load it properly, displaying the XML file contents instead of the project interface. This can cause confusion and make accessing design files difficult. To avoid this, store your project in a shorter directory path and minimize unnecessary subfolders.
 
 <br>
 
