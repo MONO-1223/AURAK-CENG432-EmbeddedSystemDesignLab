@@ -95,7 +95,23 @@ Lastly, **`accuracy`** refers to how closely the output voltage matches the expe
 
 ## Keil Simulation
 
+During the simulation, pressing the switches connected to Port E results in the generation of different musical notes. Each key on Port E corresponds to a specific frequency, and when pressed, the output waveform changes accordingly. This is visually represented on the oscilloscope, where different sine waves appear depending on the note being played. The frequency of the sine wave increases or decreases based on the pitch of the note, demonstrating the correct operation of the piano functionality.
+
+Additionally, when pressing the switch on Port F (PF0), the waveform type changes, cycling through different sound profiles such as sine wave, trumpet, horn, bassoon, flute, and guitar. This can be observed in the simulation as a noticeable shift in the waveform's shape on the oscilloscope, confirming that the system correctly modifies the voice output. Each waveform has unique characteristics that differentiate it from the others, effectively demonstrating how digital signal processing can be used to emulate different instrument sounds.
+
+Furthermore, pressing another switch on Port F (PF4) triggers the playback of the Mario theme song. When activated, the system automatically plays a sequence of predefined musical notes, and this is visible in the simulation as a structured waveform output. Instead of a single tone, the oscilloscope displays a changing waveform corresponding to the melody, confirming that the microcontroller successfully generates and sequences multiple notes in real-time.
+
+Overall, the simulation successfully verifies that the system functions as intended. The ability to visualize waveform changes when pressing the piano keys, observe the variation in waveform shape when switching voice types, and confirm the structured playback of the Mario theme song demonstrates the correct integration of sound synthesis and user input handling in the microcontroller-based digital piano system.
+
 ## C Code on EK-TM4C123GXL
+
+The provided C program is designed to run on the [TM4C123GH6PM microcontroller](Photos/TM4C123GXL.png), implementing a simple digital piano with sound generation and voice modulation capabilities. It utilizes multiple header files to manage different functionalities, including "PLL.h" for configuring the system clock to 80 MHz using the Phase-Locked Loop (PLL), "Sound.h" for handling sound generation, "Music.h" for playing predefined musical pieces, and "Switch.h" for managing user input through switches. The program defines specific memory-mapped addresses for Port F pins (PF4, PF2, and PF0) to enable direct register access for switch inputs and debugging purposes. The main function initializes essential peripherals, including the switches (Switch_Init), the Digital-to-Analog Converter (DAC) for waveform output, and the SysTick timer with an initial period of 50,000 cycles for sound generation. The piano keys are mapped to Port E, and the sound waveform is initially set to a sine wave.
+
+The program operates in an infinite loop, continuously checking for user input. It reads the state of the piano keys using `Piano_In()` and plays corresponding musical notes (C0, D, E, and G) based on which key is pressed. If no key is pressed, the sound is turned off. Additionally, the program monitors switch inputs using `Switch_In()`. Pressing SW2 (PF0) cycles through six different voice waveforms, including SineWave, Trumpet, Horn, Bassoon, Flute, and Guitar. The selection is managed using a `voice` variable, which increments and wraps around when exceeding the available options. However, there is an issue in the implementation: after setting `voice = (voice+1)%6` within the first case, the switch immediately advances to the next waveform without allowing the user to observe each waveform separately. This results in skipping one of the voice waveforms in the sequence. Additionally, pressing SW1 (PF4) triggers `Music_PlayMario()`, which plays the Mario theme song, showcasing the microcontroller's ability to generate complex musical sequences.
+
+To prevent unintended rapid switching due to mechanical switch bouncing, a delay function `(Delay1ms(25))` is implemented after reading the switch inputs. This delay ensures proper debounce handling and prevents multiple unintended voice changes or music triggers from a single press. The function `Delay1ms(int time)` creates an approximate delay by running an empty loop, with each iteration contributing to a fixed time delay. Moreover, the program includes debugging functionality by toggling PF2 within the main loop, allowing developers to monitor execution timing and behavior using an oscilloscope or logic analyzer.
+
+Overall, this program demonstrates the integration of digital input handling, sound waveform generation, and user interaction with a TM4C123GH6PM microcontroller. It provides a basic but effective digital piano with the ability to modify its waveform output dynamically. Future improvements could include fixing the voice selection logic to ensure users can properly cycle through waveforms, optimizing the delay function for better accuracy, and expanding the musical repertoire beyond a single predefined theme. Additionally, interrupt-based input handling instead of polling would improve responsiveness and efficiency by reducing CPU overhead.
 
 ```c
 #include "tm4c123gh6pm.h"  				// Include header file for TM4C123 microcontroller
@@ -103,7 +119,7 @@ Lastly, **`accuracy`** refers to how closely the output voltage matches the expe
 #include "Sound.h"         				// Include header file for sound functions
 #include "Music.h"         				// Include header file for music functions
 #include "Switch.h"        				// Include header file for switch input functions
-																																		// Define macros for accessing specific PortF pins
+							// Define macros for accessing specific PortF pins
 #define PF4  (*((volatile unsigned long *)0x40025040)) 	// PF4 (Switch 1)
 #define PF2  (*((volatile unsigned long *)0x40025010)) 	// PF2 (Used for toggling in ISR)
 #define PF0  (*((volatile unsigned long *)0x40025004)) 	// PF0 (Switch 2)
@@ -134,7 +150,7 @@ int voice;						// Variable to store the current voice selection
       default : Sound_Off();				// Turn off sound if no key is pressed
     } 
 		
-																																		// Read input from switches to change voice or play music
+							// Read input from switches to change voice or play music
     switch(Switch_In()){
       case 1  :   					// If SW2 (PF0) is pressed
           voice = (voice+1)%6; 				// Cycle through 6 different voice waveforms
@@ -154,13 +170,13 @@ int voice;						// Variable to store the current voice selection
           } 
 		break;
             case 16 : Music_PlayMario();     		// If SW1 (PF4) is pressed // Play Mario theme music
-		break;   																			
+		break;   
     } 
     Delay1ms(25);           				// Debounce delay to prevent switch bouncing
     PF2 ^= 0x04; 					// Toggle PF2 (used for debugging or profiling)
   }             
 }
-																																		// Function to create a simple delay (very approximate)
+							// Function to create a simple delay (very approximate)
 void Delay1ms(int time){ int i;
   for(;time;time--){					// Loop for the specified time in milliseconds
     for(i=0;i<1200;i++);				// Inner loop to create delay
@@ -168,6 +184,56 @@ void Delay1ms(int time){ int i;
 }
 ```
 
+## Interrupt Handling in TM4C123GH6PM
+
+When an interrupt trigger occurs, it is typically due to the **SysTick timer** reaching zero. This happens periodically based on the configured **reload value** in the `SYST_RVR` register. When the timer counts down to zero, it generates an interrupt request, prompting the processor to handle it.
+
+The interrupt vector is stored in the **startup file**, which is typically named `startup_tm4c123.s` or `startup.s`. This file contains the **vector table**, mapping each interrupt request to its corresponding handler function.
+
+Once an interrupt is triggered, the processor follows a sequence of steps before executing the interrupt handler. First, it **completes the current instruction**. Then, it **pushes key registers onto the stack**, including `R0-R3, R12, LR, PC, and xPSR`, to preserve the execution state. After that, it **loads the interrupt vector** by fetching the address of the appropriate handler from the **vector table**. The processor then **jumps to the interrupt handler** by updating the **Program Counter (PC)** and begins executing the interrupt service routine (ISR).
+
+To return from an interrupt, the `BX LR` instruction is used, which moves the **Link Register (LR)** value into the **Program Counter (PC)**. While `BX LR` typically performs a function return, in the case of an interrupt, `LR` holds a special value called `EXC_RETURN`. This instructs the processor to **restore the saved registers from the stack** before resuming normal execution. The steps involved include executing `BX LR`, recognizing the `EXC_RETURN` value, restoring the previously stored registers (`R0-R3, R12, LR, PC, xPSR`), and finally resuming execution from where the interrupt was triggered. This mechanism ensures a smooth return to normal program execution without losing critical data.
+
 ## Conclusion
 
+In this experiment, we successfully designed and implemented a digital piano using a 4-bit Digital-to-Analog Converter `(DAC)` and the [TM4C123GH6PM microcontroller](Photos/TM4C123GXL.png). Through this process, we explored the principles of Digital-to-Analog Conversion, waveform generation, and real-time digital signal processing. The DAC was built using a binary-weighted resistor network, allowing digital signals to be converted into analog voltages, which were then used to produce sound through a speaker.
+
+A key aspect of our implementation was the use of `interrupt-driven programming` via the `SysTick timer`, which ensured stable and precise waveform generation without relying on inefficient `polling methods`. This allowed for real-time multitasking while maintaining accurate sound output. We also integrated push-button switches as user inputs, enabling the microcontroller to generate specific musical notes corresponding to different key presses.
+
+The `oscilloscope analysis` of the DAC’s output confirmed the accuracy of our waveform generation, validating the expected relationship between binary input values and analog output voltages. The experimental results aligned with the theoretical calculations, demonstrating the effectiveness of our DAC circuit. The resolution, range, and precision of our system were analyzed, providing insight into how bit-depth and resistor selection impact signal quality.
+
+Overall, this experiment provided valuable hands-on experience in embedded systems development, microcontroller programming, and real-time signal processing. The knowledge gained is applicable to a wide range of applications, including audio synthesis, communication systems, and multimedia processing. Future improvements could include implementing higher-bit DACs for better audio quality, integrating PWM-based sound synthesis, or exploring digital filters for enhanced signal processing.
+
+By bridging theoretical concepts with practical implementation, this lab has strengthened our understanding of `hardware-software integration` in real-time embedded systems, laying a solid foundation for more advanced projects in digital signal processing and embedded audio applications.
+
 ## Resources
+
+[1] Cortex-M4 Technical Reference Manual. (2009). <br> https://users.ece.utexas.edu/~valvano/EE345L/Labs/Fall2011/CortexM4_TRM_r0p1.pdf  
+[2] Starter files for embedded systems. (n.d.). <br> https://users.ece.utexas.edu/%7Evalvano/arm/  
+[3] Texas Instruments Incorporated. (2014). Tiva™ TM4C123GH6PM Microcontroller data sheet. Texas Instruments Incorporated. <br> https://www.ti.com/lit/ds/symlink/tm4c123gh6pm.pdf  
+[4] Texas Instruments Incorporated. (2013). Tiva™ C Series TM4C123G LaunchPad (User's Guide). Texas Instruments Incorporated. <br>  https://www.ti.com/lit/ug/spmu296/spmu296.pdf  
+[5] Valvano, J. W. (2014). Embedded systems: Introduction to ARM® Cortex-M microcontrollers (5th ed., Vol. 1). Self-published. <br> https://users.ece.utexas.edu/~valvano/Volume1/E-Book/   
+[6] Fritzing. (n.d.). <br> https://fritzing.org/
+
+
+<br>
+
+```mermaid
+gantt
+    title Work Division Gantt Chart
+    tickInterval 1day
+    todayMarker off
+    axisFormat %a-%Y-%m-%d
+    section Preparation         
+        Nour Mostafa : crit, 2025-03-17 00:00, 02h
+        Mohamed Abouissa : crit, 2025-03-17 00:00, 02h
+    section Keil         
+        Mohamed Abouissa : crit,2025-03-19 00:00, 1d
+    section Results       
+        Nour Mostafa : crit, 2025-03-19 00:00, 1d
+    section Report
+        Nour Mostafa : crit, 2025-03-23 00:00, 2d
+        Mohamed Abouissa : crit, 2025-03-23 00:00, 2d
+```
+
+This publication adheres to all regulatory laws and guidelines established by the [American University of Ras Al Khaimah (AURAK)](https://aurak.ac.ae/) regarding the dissemination of academic materials.
