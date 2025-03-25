@@ -49,33 +49,32 @@ In the left photo, we measure the voltage across both the LED and the 220Ω resi
 In the right photo, we are creating an open gap between the resistor and the `PE0` pin, and then placing the multimeter in series to measure the current is done to accurately measure the current flowing through the circuit. When measuring current, it’s important to place the multimeter in series with the components (in this case, the resistor and LED) because the current is the same throughout a series circuit. By creating an open gap, you essentially allow the current to flow through the multimeter, which will then provide a precise reading of the current flowing through the circuit. This method ensures that the multimeter doesn’t interfere with the voltage measurements across individual components like the LED or resistor. Measuring current directly in this way is crucial to verify that the LED is drawing the expected amount of current and to ensure that the resistor is correctly limiting the current to protect the LED.
 
 
-<!-- comment 
-explain how the oscilloscope probes are connected also
+In the given circuit, the PE0 pin of the microcontroller is connected in series with a 220Ω resistor and a red LED with a 2V forward voltage. When the LED is on, the measured output voltage at PE0 is 2.96V, and the voltage drop across the LED is 2V, leaving 0.96V across the resistor. Using Ohm’s Law, the current through the circuit is calculated as:
 
-The 220Ω resistor is commonly used in LED circuits to limit the current flowing through the LED and prevent it from being damaged. 
+$$
+I = \frac{0.96V}{220Ω} ≈ 4.36mA
+$$
 
-In the case of a 3.3V supply and a 2V LED forward voltage, a 220Ω resistor limits the current to approximately 5.9mA, which is well below the typical maximum rating of the LED, ensuring its longevity and safe operation. However, other resistor values can also be used, depending on the desired current for the LED. Resistor values in the range of 150Ω to 330Ω are commonly used and will allow the LED to function correctly without exceeding its maximum current rating. If the resistor value is too small (e.g., below 150Ω), the current might exceed the LED's safe operating range, while values larger than 330Ω will reduce the current too much, potentially making the LED too dim to be useful. Therefore, the resistor should be chosen to keep the current in a safe range that still allows the LED to emit light effectively. You can calculate the acceptable resistor range for your LED circuit using Ohm’s Law and the LED forward voltage using the formula $R = \frac{V_{\text{supply}} - V_{\text{LED}}}{I_{\text{LED}}}$
-The desired LED current depends on multiple factors, including the LED's electrical ratings, brightness requirements, and power efficiency. The LED manufacturer provides recommended operating current values in the datasheet.
-For normal operation, you want a current between 10mA and 20mA, which means resistor values should be between 65Ω and 130Ω.
-For lower brightness, up to 5mA, values can go up to 260Ω.
-For safety, staying within 150Ω to 330Ω is a common practice.
+Possible Reasons for the Lower Measured Current:
 
-Explaining why we got the voltage reading that we got  // ko
-Explaining why we got the current reading that we got  //ko
-What operating point (voltage, current) exists when the LED is on? from the datasheet //ko 
-Explain how you use the resistor value to select the operating point.  //ko
-Sketch the approximate current versus voltage curve of the LED. 
-what is the current that will burn the led
+- Resistor Tolerance – The 220Ω resistor may have a tolerance (e.g., ±5% or ±10%), meaning its actual resistance could be slightly higher than 220Ω, reducing the current.
+- Internal Resistance of PE0 – The microcontroller's GPIO pin may have a small internal resistance or output impedance, which could slightly drop the available voltage.
+- LED Forward Voltage Variation – The actual forward voltage of the LED might be slightly higher than 2V, reducing the remaining voltage available for the resistor.
+- Measurement Inaccuracy – The current measurement device (e.g., multimeter or oscilloscope probe) could have an offset or error, affecting the reading.
+- Temperature Effects – The LED's characteristics, including its forward voltage, can change with temperature, influencing the current flow.
 
 
-lab findings:
-3.2v output pe0 if the led is on and the switch is unpressed
-the voltage drop across the led is 2 v
-the current at pin pe0 if the led is on 13.6mA
-9.3 mA current through fro, led anode to the ground
-with using 2.2kohm resistor the current is 0.65 mA
+which is within a safe operating range for the LED. When a 2.2kΩ resistor is used instead, the current decreases significantly to 0.65mA, making the LED much dimmer.  
 
---> 
+To accurately measure circuit parameters, the oscilloscope probes must be connected correctly:  
+- To measure PE0 voltage, place the probe tip at PE0 and the ground clip to circuit ground.  
+- To measure the voltage drop across the LED, connect the probe tip to the LED anode and the ground clip to the LED cathode.  
+- If measuring current indirectly using a shunt resistor, the probe should be placed across that resistor.  
+
+The LED operating point is determined by its forward voltage (2V) and the current flowing through it. For normal brightness, the current should be between 10mA and 20mA, while exceeding 30mA can cause overheating and damage. In this circuit, with a 220Ω resistor, the LED operates at 4.36mA, which is lower than the typical range but still sufficient for illumination.  
+
+The I-V characteristic curve of the LED is nonlinear, showing minimal current below 2V, a sharp increase around 2V, and excessive current beyond 2.2V, which can overheat and damage the LED. If the current exceeds 30mA, the LED may burn out, which could happen if a very small resistor (e.g., 10Ω) were used. By selecting an appropriate resistor value, the LED’s brightness, power consumption, and safety can be controlled effectively.
+
 
 ## Keil Simulation
 
