@@ -14,7 +14,11 @@ Equipment essential for this experiment includes the [BK-Precision 2542C digital
   <img src="Photos/demo-100.gif" style="width: 400%; height: 400px;"/> <img src="Photos/demo-150.gif" style="width: 400%; height: 400px;" />
 </p>
 
-// mohamed 
+The experiment demonstrates how a button press can control the toggling behavior of an LED. As seen in the provided GIFs, the red LED toggles at different time intervals depending on the configuration. One case shows a toggling delay of 100 ms, while the other has a delay of 150 ms. However, when the button is pressed, the LED immediately stops toggling, and when released, the toggling resumes.
+
+The button is wired to PE2, which is normally at a low voltage level. When pressed, it drives PE2 to 3.3V. The output signal controlling the LED is taken from PE3, which is configured to respond to the state of PE2. When PE2 receives 3.3V, PE3 is driven low to 0V, turning off the LED. This is because the red LED is connected between PE3 and ground, meaning it is active when PE3 is high and turns off when PE3 is low. When the button is released, PE2 returns to its default state, and the LED resumes its toggling behavior.
+
+This setup effectively demonstrates how a button press can be used to override a periodic toggling operation, providing an example of basic digital control using GPIO pins. The experiment also highlights how different toggling delays affect the LED’s blinking speed, making it a useful exercise in understanding timing control in embedded systems.
 
 For a clearer view of the practical connection, check this [schema](Photos/fritzing.png). 
 
@@ -22,7 +26,9 @@ For a clearer view of the practical connection, check this [schema](Photos/fritz
   <img src="Photos/osci100.jpg" style="width: 49%; height: 260px;"/> <img src="Photos/osci150.jpg" style="width: 49%; height: 260px;" />
 </p>
 
-// mohamed
+The oscilloscope captures the behavior of the system when a button press controls the toggling of an LED. The yellow waveform represents a periodic pulse signal, likely corresponding to the LED toggling at a defined interval, while the purple waveform indicates the logic state of the control signal responding to the button press. When the button is pressed, PE2 receives 3.3V, causing PE3 to transition to 0V, effectively turning off the LED. This behavior is reflected in the oscilloscope readings, where the purple waveform drops low, indicating that the toggling has been interrupted.
+
+Comparing the two oscilloscope images, the left screen shows a faster toggling rate compared to the right, suggesting different time delays likely 100 ms versus 150 ms. This difference highlights how adjusting the toggle delay affects the LED’s blinking behavior. The experiment successfully demonstrates how an external input can override a periodic signal, illustrating fundamental GPIO control and timing manipulation in embedded systems.
 
 Note how we connect the oscilloscope's probes at the end of the switch (going into the board) but the beginning of the LED (coming out of the board).
 
@@ -55,14 +61,14 @@ uint32_t *TimePt;
 void EnableInterrupts(void);
 void Delay(uint32_t cycles) {
   volatile unsigned long time;
-  time = cycles; // Delay based on the calculated cycles
+  time = cycles; 						// Delay based on the calculated cycles
   while (time) {
     time--;
   }
 }
 
-void Debug_Init(void) { // Initialize data dump arrays
-	int i; // Declare variable outside of for-loop for older C standards
+void Debug_Init(void) { 					// Initialize data dump arrays
+	int i; 							// Declare variable outside of for-loop for older C standards
   for (i = 0; i < 50; i++) {
     DataBuffer[i] = 0xFFFFFFFF;
     TimeBuffer[i] = 0xFFFFFFFF;
@@ -72,52 +78,52 @@ void Debug_Init(void) { // Initialize data dump arrays
 }
 
 int main(void) {
-  TExaS_Init(); // 80 MHz and PD3 is scope/meter
+  TExaS_Init(); 						// 80 MHz and PD3 is scope/meter
   Debug_Init();
 
-  // Enable clocks for Port E and Port F
+  								// Enable clocks for Port E and Port F
   SYSCTL_RCGCGPIO_R |= 0x30;
 
-  // Configure SysTick Timer
-  NVIC_ST_RELOAD_R = 0xFFFFFF; // Set RELOAD to maximum (24-bit timer)
-  NVIC_ST_CTRL_R = 0x05;       // Enable SysTick with system clock (16 MHz)
-  NVIC_ST_CURRENT_R = 0;       // Clear current value to start counting
+  								// Configure SysTick Timer
+  NVIC_ST_RELOAD_R = 0xFFFFFF; 					// Set RELOAD to maximum (24-bit timer)
+  NVIC_ST_CTRL_R = 0x05;       					// Enable SysTick with system clock (16 MHz)
+  NVIC_ST_CURRENT_R = 0;       					// Clear current value to start counting
 
-  // Configure PF2 (Blue LED) as output for heartbeat
-  GPIO_PORTF_DIR_R = 0x04;  // PF2 = Output
-  GPIO_PORTF_DEN_R = 0x04;  // Enable PF2
+  								// Configure PF2 (Blue LED) as output for heartbeat
+  GPIO_PORTF_DIR_R = 0x04;  					// PF2 = Output
+  GPIO_PORTF_DEN_R = 0x04;  					// Enable PF2
 
-  // Configure PE3 as output and PE2 as input
-  GPIO_PORTE_DIR_R = 0x08;  // PE3 = Output, PE2 = Input
-  GPIO_PORTE_DEN_R = 0x0C;  // Enable PE3 and PE2
+  								// Configure PE3 as output and PE2 as input
+  GPIO_PORTE_DIR_R = 0x08;  					// PE3 = Output, PE2 = Input
+  GPIO_PORTE_DEN_R = 0x0C;  					// Enable PE3 and PE2
 
-  EnableInterrupts(); // Enable interrupts globally
+  EnableInterrupts(); 						// Enable interrupts globally
 
   while (1) {
     uint32_t in, out;
 
-    // Data dump functionality
+    								// Data dump functionality
     if (DataPt < &DataBuffer[50]) {
-      *TimePt = NVIC_ST_CURRENT_R;          // Record current SysTick time
-      in = GPIO_PORTE_DATA_R & 0x04;        // Read PE2 input (switch state)
-      out = GPIO_PORTE_DATA_R & 0x08;       // Read PE3 (LED) state
-      *DataPt = in + out;                   // Dump input/output state to DataBuffer
+      *TimePt = NVIC_ST_CURRENT_R;          			// Record current SysTick time
+      in = GPIO_PORTE_DATA_R & 0x04;        			// Read PE2 input (switch state)
+      out = GPIO_PORTE_DATA_R & 0x08;       			// Read PE3 (LED) state
+      *DataPt = in + out;                   			// Dump input/output state to DataBuffer
       TimePt++;
       DataPt++;
     }
 
-    // Check if the switch (PE2) is pressed
-    if (GPIO_PORTE_DATA_R & 0x04) {         // PE2 is high
-      GPIO_PORTE_DATA_R &= ~0x08;           // Turn off PE3 (LED)
+    								// Check if the switch (PE2) is pressed
+    if (GPIO_PORTE_DATA_R & 0x04) {        			// PE2 is high
+      GPIO_PORTE_DATA_R &= ~0x08;           			// Turn off PE3 (LED)
     } else {
-      GPIO_PORTE_DATA_R ^= 0x08;            // Toggle PE3 (LED)
+      GPIO_PORTE_DATA_R ^= 0x08;            			// Toggle PE3 (LED)
     }
 
-    // Alternate delay between 100 ms and 150 ms
-    GPIO_PORTF_DATA_R ^= 0x04;              // Toggle PF2 (Blue LED for heartbeat)
-    // Delay(727272);                       // 100 ms delay 
-    // GPIO_PORTF_DATA_R ^= 0x04;           // Toggle PF2 again
-     Delay(1090909);                        // 150 ms delay
+    								// Alternate delay between 100 ms and 150 ms
+    GPIO_PORTF_DATA_R ^= 0x04;              			// Toggle PF2 (Blue LED for heartbeat)
+    // Delay(727272);                       			// 100 ms delay 
+    // GPIO_PORTF_DATA_R ^= 0x04;           			// Toggle PF2 again
+     Delay(1090909);                        			// 150 ms delay
   }
 }
 ```
