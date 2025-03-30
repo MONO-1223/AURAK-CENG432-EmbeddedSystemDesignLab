@@ -17,10 +17,8 @@ Equipment essential for this experiment includes the [green LED](https://users.e
 ## Hardware Implementation
 
 <p align="center">
-  <img src="Photos/hardware1.jpg" style="width: 49%; height: 220px;"/> <img src="Photos/hardware2.jpg" style="width: 49%; height: 220px;" />
-</p>
-<p align="center">
-  <img src="Photos/hardwaredemo.gif" style="width: 1000px" />
+  <img src="Photos/hardware1.jpg" style="width: 49%; height: 300px;"/> <img src="Photos/hardware2.jpg" style="width: 49%; height: 300px;" />
+    <img src="Photos/hardwaredemo.gif" style="width: 1000px" />
 </p>
 
 
