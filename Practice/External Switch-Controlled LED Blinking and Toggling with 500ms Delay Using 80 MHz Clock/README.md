@@ -23,8 +23,7 @@ The system incorporates two active-low push buttons connected to microcontroller
   <img src="Photos/simulation.png" style="width: 200%;"/>
 </p>
 
-// Mohamed  
-how the delay was calculated
+Simulation verification demonstrated correct operation through oscilloscope measurements, showing proper low-level button activation signals and corresponding LED output waveforms. Color-coded traces (green for PF3, blue for PF2, red for PF1) visually confirmed the expected behavior, validating both the circuit design and control software implementation.
 
 ## C Code on EK-TM4C123GXL
 
