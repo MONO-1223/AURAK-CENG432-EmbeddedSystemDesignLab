@@ -10,7 +10,7 @@ In this task, we use the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.pn
   <img src="Photos/demo.gif" style="width: 150%; height: 300px; "/> &nbsp;&nbsp; <img src="Photos/fritzing.png" style="width: 66%; height: 300px;" />
 </p>
 
-// mohamed 
+In this setup, the push button is connected to pin PE3 as an `active-high` input, meaning it reads a logic high (1) when pressed and a logic low (0) when released. Three LEDs are connected to the microcontroller’s output pins: the green LED to `PF3`, the blue LED to `PF2`, and the red LED to `PF1`, with all LEDs grounded to complete the circuit. The system operates such that when the button is not pressed, the green LED remains on, while the red and blue LEDs stay off. However, when the button is pressed, the green LED turns off, and the red and blue LEDs enter a blinking mode, alternating their states at a defined frequency. This behavior demonstrates basic input detection and output control, showcasing the microcontroller’s ability to respond to user input and dynamically adjust peripheral devices.
 
 ## Keil Simulation
 
