@@ -6,13 +6,11 @@ This report is Markdown-typed and was submitted in Spring 2025 by students [Nour
 
 ---
 
-objectives
+This lab experiment focuses on developing a device driver for the Sitronix [ST7735R](https://cdn-shop.adafruit.com/datasheets/ST7735R_V0.2.pdf) LCD display, interfaced with the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png). The primary objectives include understanding the hardware connections, implementing communication protocols using busy-wait synchronization, and creating functions to display decimal and fixed-point numbers on the LCD. The lab emphasizes key concepts such as indexed addressing, stack management for local variables, and fixed-point arithmetic to handle non-integer values efficiently.
 
-design ... using the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.png).
+The experiment is structured into several phases. First, the hardware configuration involves setting up the TM4C123 to communicate with the ST7735R LCD via GPIO and the Synchronous Serial Interface (SSI). Next, the driver implementation requires writing assembly-based functions to send commands and data to the LCD while ensuring proper synchronization. A critical part of the lab involves developing the `LCD_OutDec` and `LCD_OutFix` functions, which convert numerical values into displayable formats using stack-allocated local variables. Finally, the system is validated through simulation and hardware testing to ensure correct functionality under various input conditions.
 
-necessary background
-
-Equipment essential for this experiment includes the [ST7735R](https://cdn-shop.adafruit.com/datasheets/ST7735R_V0.2.pdf), popular PE-74N breadboard, male-male and female-male wires, complemented by the Keil uVision 5 IDE. 
+This lab not only reinforces fundamental embedded systems programming techniques but also provides hands-on experience in device driver development, stack manipulation, and hardware interfacing. The skills acquired here serve as a foundation for more advanced topics in real-time systems and peripheral integration explored in later labs.
 
 ## Hardware Implementation
 
@@ -22,7 +20,9 @@ Equipment essential for this experiment includes the [ST7735R](https://cdn-shop.
 </p>
 
 
-Demonstrated above is
+In this experiment, the hardware configuration for interfacing the TM4C123 microcontroller with the Sitronix ST7735 LCD remains consistent throughout all tests, as illustrated in the connection diagram [ST7735R Connection](Photos/LCD.png). The only modifications were made to the software, specifically the main C code driving the display logic. 
+
+The system’s functionality was validated in two key phases. First, the LCD’s text rendering capability was tested by displaying our organization’s name both horizontally and diagonally, confirming the driver’s flexibility in positioning output. Second, an interactive demo was implemented using switch SW1 to cycle through display modes: initially showing a welcome message, then transitioning to our logo upon the first button press, and finally displaying team members’ names sequentially with subsequent presses. This progressive validation approach from static text to dynamic, user-controlled content effectively demonstrates the LCD driver’s core functionalities, including command handling, graphics rendering, and interrupt driven input processing.
 
 ## Keil Simulation
 
