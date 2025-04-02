@@ -18,7 +18,7 @@ In this setup, the push button is connected to pin PE3 as an `active-high` input
   <img src="Photos/simulation.png" style="width: 200%;"/>
 </p>
 
-// moahmed
+This functionality was verified through simulation, where the generated waveforms correctly reflected the expected behavior. The green LED's signal (PF3) showed a steady high logic level when the button was inactive, while the red (PF1) and blue (PF2) LEDs' signals displayed synchronized square waves (blinking) only when the button was pressed. The simulation confirmed proper GPIO control and timing, with the waveforms matching the corresponding LED states in their respective colors green for PF3, red for PF1, and blue for PF2 providing clear visual validation of the circuit’s operation.
 
 ## C Code on EK-TM4C123GXL
 
