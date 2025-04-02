@@ -54,19 +54,19 @@ unsigned long  time;
 }
 
 int main(void){
-	TExaS_Init();											// run at 80MHz
-	SYSCTL_RCGCGPIO_R |= 0x30;        // clock for port F and E    (0011 0000)
+	TExaS_Init();							// run at 80MHz
+	SYSCTL_RCGCGPIO_R |= 0x30;        				// clock for port F and E    (0011 0000)
 	
-	GPIO_PORTE_DIR_R=0x00;										// Set PE3 and PE2 input
-  GPIO_PORTE_DEN_R=0x0C; 										// Enable PE3 and PE2  (0000 1100)
-	GPIO_PORTE_PUR_R = 0x0C;									// Pull up on PE3 and PE2 (when we use the pur we should remove the 3.3v connected to the switches)
+	GPIO_PORTE_DIR_R=0x00;						// Set PE3 and PE2 input
+  GPIO_PORTE_DEN_R=0x0C; 						// Enable PE3 and PE2  (0000 1100)
+	GPIO_PORTE_PUR_R = 0x0C;					// Pull up on PE3 and PE2 (when we use the pur we should remove the 3.3v connected to the switches)
 	GPIO_PORTF_AMSEL_R = 0x00;	
 	GPIO_PORTF_PCTL_R = 0x00000000;
 	GPIO_PORTF_AFSEL_R = 0x00;
 	
 	
-  GPIO_PORTF_DIR_R =0x0E;  									// Set PF1 PF2 PF3 as output
-  GPIO_PORTF_DEN_R= 0x0E;  									// Enable PF1 PF2 PF3
+  GPIO_PORTF_DIR_R =0x0E;  						// Set PF1 PF2 PF3 as output
+  GPIO_PORTF_DEN_R= 0x0E;  						// Enable PF1 PF2 PF3
 	GPIO_PORTF_AMSEL_R = 0x00;	
 	GPIO_PORTF_PCTL_R = 0x00000000;
 	GPIO_PORTF_AFSEL_R = 0x00;
@@ -80,7 +80,7 @@ int main(void){
 			break;
 			case 0x08:PortF_Output_PE3_Pressed(); 
 			break;
-			case 0x0C:PortF_Output_Both_Not_Pressed(); // when in simulation make it case 0x00 - when in real hardware make it 0x0C
+			case 0x0C:PortF_Output_Both_Not_Pressed(); 	// when in simulation make it case 0x00 - when in real hardware make it 0x0C
 			break;
     
   }
