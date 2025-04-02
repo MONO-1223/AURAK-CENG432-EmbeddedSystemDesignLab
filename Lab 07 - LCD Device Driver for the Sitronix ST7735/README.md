@@ -27,10 +27,11 @@ The system’s functionality was validated in two key phases. First, the LCD’s
 ## Keil Simulation
 
 <p align="center">
-  <img src="Photos/debug.png" style="width: 1000px" title="Simulation Test"/>
+  <img src="Photos/Sim_1.png" style="width: 49%; height: 300px;"/> <img src="Photos/Sim_2.png" style="width: 49%; height: 300px;" />
+    <img src="Photos/Sim_3.png" style="width: 1000px" />
 </p>
 
-- commentary
+
 - show the binding, allocation/initialization, access and deallocation of the local variables
 - observe the stack in the debugger and identify the activation records created during the execution of  LCD_OutDec
 
