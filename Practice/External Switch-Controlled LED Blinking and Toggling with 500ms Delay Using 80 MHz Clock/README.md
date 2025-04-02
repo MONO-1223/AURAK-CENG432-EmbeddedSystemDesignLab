@@ -11,7 +11,7 @@ In this task, we use the [Tiva C (TM4C123) microcontroller](Photos/TM4C123GXL.pn
   <img src="Photos/demo.gif" style="width: 150%; height: 300px; "/> &nbsp;&nbsp; <img src="Photos/fritzing.png" style="width: 64%; height: 300px;" />
 </p>
 
-// mohamed 
+The system incorporates two active-low push buttons connected to microcontroller pins PE2 and PE3, utilizing internal pull-up resistors to produce logic 0 when pressed and logic 1 when released. Three LEDs - green (PF3), blue (PF2), and red (PF1) - are interfaced with the controller using a common ground configuration. During normal operation (no buttons pressed), only the green LED remains illuminated. The system responds to button presses with distinct LED patterns: pressing PE3 turns off the green LED and creates an alternating blink between red and blue LEDs; pressing PE2 extinguishes the green LED and initiates rapid simultaneous blinking of all three LEDs; when both buttons are pressed, the green LED deactivates while the red and blue LEDs alternate.
 
 > [!CAUTION]
 > When the pull-up resistor (PUR) is enabled on a switch, the input pin is internally connected to 3.3V through a weak resistor. In this configuration, the system interprets the input as logic high (1) when the switch is not pressed. For the switch press to be detected, the input must be pulled to logic low (0), which happens when the switch is connected to ground (GND). If the switch is instead connected to 3.3V, pressing it will not cause a voltage change, meaning the system will always read it as high and will not register the press event. Hence, when the pull-up resistor (PUR) is enabled, the pin is internally connected to 3.3V, so in hardware, the switch only needs to be connected to ground (GND). 
