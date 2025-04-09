@@ -28,7 +28,8 @@ The system’s functionality was validated in two key phases. First, the LCD’s
 
 <p align="center">
   <img src="Photos/Sim_1.png" style="width: 49%; height: 300px;"/> <img src="Photos/Sim_2.png" style="width: 49%; height: 300px;" />
-    <img src="Photos/Sim_3.png" style="width: 1000px" />
+  <img src="Photos/first_click.png" style="width: 49%; height: 300px;"/> <img src="Photos/second_click.png" style="width: 49%; height: 300px;" />
+    <img src="Photos/last_click.png" style="width: 1000px" />
 </p>
 
 
@@ -438,6 +439,37 @@ void LCD_OutFix(uint32_t num);
       i = 0;                                    // Reset 'i' to 0
     }
   }
+}
+```
+> [!CAUTION]
+> The above Code is for Part 2 of the lab if you want part 1 you can chage the main code by the code below and it will work fine
+
+```C
+int main(void){
+
+PLL_Init();			// Initialize the Phase-Locked Loop (PLL) for system clock settings
+
+IO_Init();			// Set system clock to 80 MHz (usually for the microcontroller's clock speed)
+
+ST7735_InitR(INITR_REDTAB);	// Initialize the ST7735 LCD with the RedTab initialization configuration
+
+ST7735_FillScreen(0xFFFF);	// Fill the entire screen with white color (0xFFFF represents white in RGB565)
+
+				// Set the cursor position to (9, 6) on the screen and output character 'M'
+ST7735_SetCursor(9,6);
+ST7735_OutChar('M');
+				// Set the cursor position to (10, 7) and output character 'O'
+ST7735_SetCursor(10,7);
+ST7735_OutChar('O');
+				// Set the cursor position to (11, 8) and output character 'N'
+ST7735_SetCursor(11,8);
+ST7735_OutChar('N');
+				// Set the cursor position to (12, 9) and output character 'O'
+ST7735_SetCursor(12,9);
+ST7735_OutChar('O');
+				
+IO_Touch();			// Initialize touch input on the screen (likely configuring touch sensing)
+ST7735_FillScreen(0);		// Fill the entire screen with black color (0 represents black in RGB565)
 }
 ```
 
