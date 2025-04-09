@@ -32,10 +32,6 @@ The system’s functionality was validated in two key phases. First, the LCD’s
     <img src="Photos/last_click.png" style="width: 1000px" />
 </p>
 
-
-- show the binding, allocation/initialization, access and deallocation of the local variables
-- observe the stack in the debugger and identify the activation records created during the execution of  LCD_OutDec
-
 ## C Code on EK-TM4C123GXL
 
 The LCD driver will be developed using assembly language. In later labs (Labs 8, 9, and 10), these driver functions will be called from C, requiring the function prototypes for the public functions to be placed in the header file LCD.h. The driver consists of several components, including function implementations for input/output (I/O) operations. If developed in C, these implementations would typically reside in LCD.c. The device driver consists of both public and private functions. Public functions, which include LCD_ or IO_ in their names, will be developed and tested in this lab. Additionally, a private function will be required to handle output commands to the LCD. Unlike public functions, private functions do not include LCD_ in their names. The provided Lab7Main.s file contains a main program that can be used to test these functions. A critical principle in device driver design is separating the interface (i.e., how the program is used) from the internal implementation (i.e., how the program operates). This separation is achieved through clear documentation in the comments. The interface details are documented at the top of each subroutine, and the implementation details are described within the subroutine body.
@@ -489,7 +485,13 @@ __12. For `OutDec` and `OutFix`, are we supposed to put our final result back in
 
 ## Conclusion
 
+This lab offered a comprehensive exploration of low-level device driver development using the TM4C123 microcontroller and the ST7735R LCD display. By working primarily in assembly language, we were able to interact directly with the hardware and gain a clear understanding of how data is managed, transferred, and displayed at the register level. The implementation of core functions such as `writecommand`, `writedata`, `LCD_OutDec`, and `LCD_OutFix` not only reinforced our understanding of stack operations and parameter passing in assembly, but also allowed us to practice writing clean, modular, and reusable code.
 
+A major focus of this lab was the development of output functions capable of displaying both decimal and fixed-point numbers. This required a solid grasp of number representation, arithmetic operations, and formatting techniques. We also explored the importance of using busy-wait synchronization when interfacing with peripherals, which allowed us to manage timing constraints without relying on interrupts or more complex scheduling techniques.
+
+The simulation phase ensured that each function operated correctly in isolation, while the hardware testing phase confirmed that the functions worked cohesively to produce the expected output on the LCD. This two-step validation approach taught us the importance of iterative testing and debugging in both software and embedded systems development.
+
+Overall, this lab significantly enhanced our understanding of embedded system concepts, particularly in terms of memory management, peripheral control, and assembly-level programming. It also laid the groundwork for future labs where more complex drivers and real-time interactions will be required. By the end of this lab, we not only achieved functional output on the LCD but also developed confidence in our ability to bridge the gap between software and hardware through precise, low-level control.
 
 ## Resources
 
