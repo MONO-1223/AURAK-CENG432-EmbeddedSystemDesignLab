@@ -42,6 +42,198 @@ The initialization of the LCD is a time-consuming process, requiring the executi
 
 ```c
 
+#include <stdint.h>                                                          // Standard integer types for fixed-width variables
+#include "ST7735.h"                                                          // LCD display driver
+#include "TExaS.h"                                                           // TExaS debugging tool
+#include "ADC.h"                                                             // Analog-to-Digital Converter driver
+#include "print.h"                                                           // Printing functions for LCD
+#include "tm4c123gh6pm.h"                                                    // TM4C123GH6PM microcontroller definitions
+
+void DisableInterrupts(void);                                                // Disables all interrupts
+void EnableInterrupts(void);                                                 // Enables all interrupts
+
+#define PF1       (*((volatile uint32_t *)0x40025008))                       // Port F Pin 1
+#define PF2       (*((volatile uint32_t *)0x40025010))                       // Port F Pin 2 (Heartbeat LED)
+#define PF3       (*((volatile uint32_t *)0x40025020))                       // Port F Pin 3
+#define PF4       (*((volatile uint32_t *)0x40025040))                       // Port F Pin 4 (Switch 1)
+#define MS 80000                                                             // Number of cycles in 1ms at 80MHz
+
+void SysTick_Init(unsigned long period){                                      
+  NVIC_ST_CTRL_R = 0;                                                        // Disable SysTick during setup
+  NVIC_ST_RELOAD_R = period-1;                                               // Set reload value (period-1)
+  NVIC_ST_CURRENT_R = 0;                                                     // Clear current value
+  NVIC_SYS_PRI3_R = (NVIC_SYS_PRI3_R&0x00FFFFFF)|0x40000000;                 // Set priority level
+  NVIC_ST_CTRL_R = NVIC_ST_CTRL_ENABLE+NVIC_ST_CTRL_CLK_SRC+NVIC_ST_CTRL_INTEN; // Enable SysTick
+}
+
+void PortF_Init(void){
+  SYSCTL_RCGCGPIO_R |= 0x20;                                                 // Enable clock for Port F
+  while((SYSCTL_PRGPIO_R&0x20) != 0x20){};                                   // Wait for clock to stabilize
+  GPIO_PORTF_DIR_R |=  0x0E;                                                 // PF1-3 as outputs, PF4 as input
+  GPIO_PORTF_PUR_R |= 0x10;                                                  // Enable pull-up on PF4 (switch)
+  GPIO_PORTF_DEN_R |=  0x1E;                                                 // Digital enable for PF1-4
+}
+
+uint32_t Data;                                                               // Raw ADC value
+uint32_t Position;                                                           // Converted position value
+
+int main1(void){      
+  TExaS_Init();                                                              // Initialize TExaS debugging tool
+  ADC_Init();                                                                // Initialize ADC
+  while(1){                
+    Data = ADC_In();                                                         // Continuously sample ADC
+  }
+}
+
+int main2(void){
+  TExaS_Init();                                                              // Initialize TExaS debugging tool
+  ADC_Init();                                                                // Initialize ADC
+  ST7735_InitR(INITR_REDTAB);                                                // Initialize LCD with red tab
+  PortF_Init();                                                              // Initialize Port F
+  while(1){                   
+    PF2 = 0x04;                                                              // Turn on PF2 (profile start)
+    Data = ADC_In();                                                         // Sample ADC
+    PF2 = 0x00;                                                              // Turn off PF2 (profile end)
+    ST7735_SetCursor(1,1);                                                   // Set LCD cursor position
+    PF1 = 0x02;                                                              // Turn on PF1 (LCD profile start)
+    LCD_OutDec(Data);                                                        // Output raw ADC value to LCD
+    ST7735_OutString("    ");                                                // Clear remaining characters
+    PF1 = 0;                                                                 // Turn off PF1 (LCD profile end)
+  }
+}
+
+uint32_t Convert(uint32_t input){ 
+  return (12*input+5303)/32;                                                 // Linear conversion formula
+}
+
+int main3(void){ 
+  TExaS_Init();                                                              // Initialize TExaS debugging tool
+  ST7735_InitR(INITR_REDTAB);                                                // Initialize LCD
+  PortF_Init();                                                              // Initialize Port F
+  ADC_Init();                                                                // Initialize ADC
+  while(1){  
+    PF2 ^= 0x04;                                                             // Toggle heartbeat LED
+    Data = ADC_In();                                                         // Sample ADC
+    PF3 = 0x08;                                                              // Turn on PF3 (conversion profile)
+    Position = Convert(Data);                                                // Convert ADC value to position
+    PF3 = 0;                                                                 // Turn off PF3
+    PF1 = 0x02;                                                              // Turn on PF1 (LCD profile)
+    ST7735_SetCursor(0,0);                                                   // Set cursor to first line
+    LCD_OutDec(Data);                                                        // Output raw ADC value
+    ST7735_OutString("    ");                                                // Clear remaining characters
+    ST7735_SetCursor(6,0);                                                   // Set cursor to second position
+    LCD_OutFix(Position);                                                    // Output converted position
+    PF1 = 0;                                                                 // Turn off PF1
+  }
+}   
+
+int MailStatus;                                                              // Flag for new data available
+uint32_t MailValue;                                                          // ADC value from interrupt
+uint32_t Histogram[64];                                                      // Histogram bins for analysis
+uint32_t Center;                                                             // Center value for histogram
+
+int main(void){ 
+  uint32_t sum,i,d,time;                                                     // Variables for averaging/timing
+  uint32_t SW1;                                                              // Switch state variable
+  
+  TExaS_Init();                                                              // Initialize TExaS debugging tool
+  ST7735_InitR(INITR_REDTAB);                                                // Initialize LCD
+  ADC_Init();                                                                // Initialize ADC
+  PortF_Init();                                                              // Initialize Port F
+  SW1 = PF4;                                                                 // Read initial switch state
+  MailStatus = 0;                                                            // Initialize mailbox flag
+  
+  ST7735_PlotClear(0,2000);                                                  // Clear plot with range 0-2000
+  ST7735_PlotPoint(0);                                                       // Plot reference points
+  ST7735_PlotPoint(1000);  
+  ST7735_PlotPoint(2000); 
+  LCD_OutFix(0);                                                             // Display initial position
+  ST7735_OutString("cm");                                                    // Display units
+  
+  SysTick_Init(25*MS);                                                       // Initialize SysTick for 40Hz
+  EnableInterrupts();                                                        // Enable interrupts
+  
+  i = 0; sum = 0;                                                            // Initialize averaging variables
+  ST7735_PlotClear(0,1500);                                                  // Clear plot with new range
+  time = 0;                                                                  // Initialize time counter
+  
+  while(1){
+    while(MailStatus==0){                                                    // Wait for new ADC data
+      PF2 ^= 0x04;                                                           // Toggle heartbeat while waiting
+    }
+    
+    PF3 ^= 0x08;                                                             // Toggle profile indicator
+    sum = sum + MailValue;                                                   // Accumulate for averaging
+    i++;
+    ST7735_PlotPoint(Convert(MailValue));                                    // Plot current position
+    MailStatus = 0;                                                          // Clear mailbox flag
+    
+    if(i== 20){                                                              // Every 20 samples (0.5s)
+      ST7735_SetCursor(0,0);                                                 // Position cursor
+      Position = Convert(sum/20);                                            // Calculate average position
+      LCD_OutFix(Position);                                                  // Display average position
+      i = 0; sum = 0;                                                        // Reset averaging
+      time = time+1;                                                         // Increment time counter
+      ST7735_PlotNextErase();                                                // Advance plot position
+      
+      if(time == 128){                                                       // Clear plot after 128 updates
+        ST7735_PlotClear(0,1500);
+        time = 0;
+      }
+    }
+    
+    if((SW1 == 0x10)&&(PF4 == 0)){                                           // Histogram mode when switch pressed
+      Center = MailValue;                                                    // Set current value as center
+      for(i=0; i<64; i++) Histogram[i] = 0;                                  // Clear histogram
+      i = 0;
+      ST7735_PlotClear(0,1500);                                              // Clear plot
+      
+      for(i=0; i<200; i++){                                                  // Collect 200 samples
+        while(MailStatus==0){
+          PF2 ^= 0x04;                                                       // Toggle heartbeat while waiting
+        }
+        PF3 ^= 0x08;                                                         // Toggle profile indicator
+        ST7735_PlotPoint(Convert(MailValue));                                // Plot current position
+        
+        if(MailValue<Center-32){                                             // Bin the ADC value
+          Histogram[0]++;
+        }else if(MailValue>=Center+32){
+          Histogram[63]++;
+        }else{
+          d = MailValue-Center+32;
+          Histogram[d]++;
+        }
+        MailStatus = 0;                                                      // Clear mailbox flag
+      }
+      
+      ST7735_PlotClear(0,100);                                               // Clear plot with new range
+      for(i=0; i<63; i++){
+        if(Histogram[i]>99) Histogram[i]=99;                                 // Limit max bar height
+        ST7735_PlotBar(Histogram[i]);                                        // Plot histogram bar
+        ST7735_PlotNext();                                                   // Move to next position
+        ST7735_PlotBar(Histogram[i]);                                        // Plot again (wider bars)
+        ST7735_PlotNext();
+      }
+      
+      while(PF4){};                                                          // Wait for switch release
+      i = 0; sum = 0;
+      ST7735_PlotClear(0,1500);                                              // Clear plot
+      time = 0;
+      MailStatus = 0;
+      while(MailStatus==0){};                                                // Wait for new data
+      while(PF4==0){};                                                       // Wait for switch release
+      MailStatus = 0;
+      while(MailStatus==0){};                                                // Wait for new data
+    }
+    SW1 = PF4;                                                               // Update switch state
+  }
+}
+
+void SysTick_Handler(void){                                                  // SysTick ISR (40Hz)
+  PF1 ^= 0x02;                                                               // Toggle heartbeat LED
+  MailValue = ADC_In();                                                      // Sample ADC
+  MailStatus = 1;                                                            // Set new data flag
+}
 ```
 
 ## Questions & Answers
