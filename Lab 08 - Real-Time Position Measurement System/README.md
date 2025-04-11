@@ -252,7 +252,19 @@ __12. How is the SysTick interrupt intialized?__ <br> The SysTick interrupt is i
 
 ## Conclusion
 
+This laboratory experiment successfully demonstrated the design and implementation of a real-time position measurement system using the TM4C123 microcontroller. Through careful integration of hardware components including a linear slide potentiometer and LCD display, coupled with robust software development, we achieved precise distance measurements with a resolution of 0.001 cm. The system's core functionality relied on the microcontroller's 12-bit ADC to convert analog voltage readings into digital values, which were then processed using efficient fixed-point arithmetic.
 
+The implementation highlighted several key aspects of embedded systems design. We established a reliable sampling mechanism using SysTick interrupts at 40 Hz, ensuring compliance with the Nyquist Theorem while maintaining system responsiveness. The modular software architecture, featuring separate drivers for ADC, LCD, and timing functions, demonstrated effective separation of concerns and code reusability. Through empirical calibration, we developed a linear conversion algorithm that translated raw ADC readings into accurate distance measurements, achieving a practical precision of ±0.01 cm.
+
+Several technical challenges were overcome during the project. The timing-sensitive nature of LCD initialization required careful synchronization with interrupt enabling. Debugging the real-time system necessitated innovative approaches, such as strategic variable monitoring instead of traditional breakpoints. The mailbox system proved particularly effective in safely passing data between interrupt and main program contexts, preventing race conditions while maintaining timing accuracy.
+
+The experimental results validated our design approach. Oscilloscope measurements confirmed the consistent 40 Hz sampling rate, while comparison with physical reference points demonstrated the system's measurement accuracy. The implemented histogram feature further allowed for statistical analysis of measurement distribution, providing additional insights into system performance.
+
+This project provided valuable hands-on experience with fundamental embedded systems concepts. We gained practical knowledge in analog-to-digital conversion, interrupt-driven programming, and real-time system design. The experience emphasized the importance of careful calibration, efficient algorithm implementation, and thorough testing in developing reliable measurement systems.
+
+Future enhancements could explore several directions. Implementing a piecewise-linear calibration could improve accuracy across the entire measurement range. Adding wireless communication capabilities would enable remote monitoring of position data. The system could also be adapted for different measurement units or extended to support multiple sensors simultaneously.
+
+In summary, this laboratory exercise successfully met all specified requirements while providing comprehensive exposure to essential embedded systems development techniques. The completed position measurement system serves as a strong foundation for more advanced instrumentation projects and demonstrates the practical application of theoretical concepts in electrical and computer engineering.
 
 ## Resources
 
